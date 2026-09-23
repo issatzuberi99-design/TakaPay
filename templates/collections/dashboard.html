@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Collection Dashboard | TakaPay{% endblock %}
+{% block content %}
+<section class="placeholder-page report-list-page">
+    <p class="eyebrow">Approved collector</p>
+    <div class="section-title-row">
+        <h1>Collection Dashboard</h1>
+    </div>
+
+    <div class="report-list-block">
+        <h2>Available Collections</h2>
+        {% if available_collections %}
+            <div class="report-list">
+                {% for collection in available_collections %}
+                    <div class="report-item">
+                        <span>
+                            <strong>{{ collection.waste_report.category.name }}</strong>
+                            <small>{{ collection.waste_report.created_at|date:"M j, Y" }}</small>
+                        </span>
+                        <span>
+                            <strong>{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}</strong>
+                            <small>{{ collection.waste_report.description|truncatechars:80 }}</small>
+                        </span>
+                        <span class="report-status">{{ collection.get_status_display }}</span>
+                        <div class="button-row">
+                            <a class="button button-secondary" href="{% url 'collection_detail' collection.id %}">View</a>
+                            <form method="post" action="{% url 'collection_accept' collection.id %}">
+                                {% csrf_token %}
+                                <button class="button button-primary" type="submit">Accept</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No collection requests are currently available.</p>
+        {% endif %}
+    </div>
+
+    <div class="report-list-block">
+        <h2>My Collections</h2>
+        {% if my_collections %}
+            <div class="report-list">
+                {% for collection in my_collections %}
+                    <div class="report-item">
+                        <span>
+                            <strong>{{ collection.waste_report.category.name }}</strong>
+                            <small>Accepted {{ collection.accepted_at|date:"M j, Y"|default:"--" }}</small>
+                        </span>
+                        <span>
+                            <strong>{{ collection.actual_weight|default:"--" }} {{ collection.weight_unit|default:collection.waste_report.get_weight_unit_display }}</strong>
+                            <small>{{ collection.get_status_display }}</small>
+                        </span>
+                        <span class="report-status">{{ collection.get_status_display }}</span>
+                        <div class="button-row">
+                            <a class="button button-secondary" href="{% url 'collection_detail' collection.id %}">Open</a>
+                            {% if collection.status == 'accepted' %}
+                                <a class="button button-primary" href="{% url 'collection_complete' collection.id %}">Complete</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">You have not accepted any collection requests yet.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

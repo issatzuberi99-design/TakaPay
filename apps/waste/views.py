@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from apps.accounts.decorators import role_required
 from apps.accounts.models import User
 
+from apps.collections.models import CollectionRequest
+
 from .forms import WasteReportForm
 from .models import WasteReport
 
@@ -16,6 +18,7 @@ def report_create(request):
         report.customer = request.user
         report.status = WasteReport.Status.SUBMITTED
         report.save()
+        CollectionRequest.objects.get_or_create(waste_report=report)
         messages.success(request, "Your waste report was submitted successfully.")
         return redirect("waste_report_detail", report_id=report.id)
     return render(request, "waste/report_form.html", {"form": form})

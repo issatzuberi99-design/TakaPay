@@ -8,6 +8,17 @@
     <dl class="report-details">
         <dt>Estimated weight</dt><dd>{{ report.estimated_weight }} {{ report.get_weight_unit_display }}</dd>
         <dt>Status</dt><dd>{{ report.get_status_display }}</dd>
+        <dt>Collection status</dt>
+        <dd>
+            {% if report.collection_request %}
+                {{ report.collection_request.get_status_display }}
+            {% else %}
+                Not created
+            {% endif %}
+        </dd>
+        {% if report.collection_request and report.collection_request.actual_weight %}
+            <dt>Actual collected weight</dt><dd>{{ report.collection_request.actual_weight }} {{ report.collection_request.get_weight_unit_display }}</dd>
+        {% endif %}
         <dt>Latitude</dt><dd>{{ report.latitude }}</dd>
         <dt>Longitude</dt><dd>{{ report.longitude }}</dd>
         <dt>GPS accuracy</dt><dd>{{ report.location_accuracy }} meters</dd>

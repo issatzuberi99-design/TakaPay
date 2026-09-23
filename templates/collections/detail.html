@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Collection Detail | TakaPay{% endblock %}
+{% block content %}
+<section class="placeholder-page report-detail-page">
+    <p class="eyebrow">Collection request</p>
+    <h1>{{ collection.waste_report.category.name }}</h1>
+    <p>{{ collection.waste_report.description }}</p>
+
+    <dl class="report-details">
+        <dt>Status</dt><dd>{{ collection.get_status_display }}</dd>
+        <dt>Estimated weight</dt><dd>{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}</dd>
+        <dt>Customer</dt><dd>{{ collection.waste_report.customer.username }}</dd>
+        <dt>Latitude</dt><dd>{{ collection.waste_report.latitude }}</dd>
+        <dt>Longitude</dt><dd>{{ collection.waste_report.longitude }}</dd>
+        <dt>Location accuracy</dt><dd>{{ collection.waste_report.location_accuracy }} meters</dd>
+        <dt>Report date</dt><dd>{{ collection.waste_report.created_at|date:"M j, Y, g:i a" }}</dd>
+        {% if collection.collector %}
+            <dt>Assigned collector</dt><dd>{{ collection.collector.username }}</dd>
+        {% endif %}
+    </dl>
+
+    {% if collection.waste_report.photo %}
+        <img class="report-photo" src="{{ collection.waste_report.photo.url }}" alt="Waste report photo">
+    {% endif %}
+
+    <p>
+        <a class="text-link" target="_blank" rel="noreferrer" href="https://www.google.com/maps?q={{ collection.waste_report.latitude }},{{ collection.waste_report.longitude }}">
+            Open location in Google Maps
+        </a>
+    </p>
+
+    {% if collection.status == 'available' %}
+        <form method="post" action="{% url 'collection_accept' collection.id %}">
+            {% csrf_token %}
+            <button class="button button-primary" type="submit">Accept this collection</button>
+        </form>
+    {% elif request.user == collection.collector and collection.status == 'accepted' %}
+        <p><a class="button button-primary" href="{% url 'collection_complete' collection.id %}">Complete collection</a></p>
+    {% endif %}
+
+    <p><a class="text-link" href="{% url 'collections_dashboard' %}">Back to dashboard</a></p>
+</section>
+{% endblock %}

@@ -17,6 +17,7 @@ urlpatterns = [
     path("dashboard/", account_views.dashboard, name="dashboard"),
     path("admin-dashboard/", account_views.admin_dashboard, name="admin_dashboard"),
     path("collector/jobs/", account_views.collector_jobs, name="collector_jobs"),
+    path("collections/", include("apps.collections.urls")),
     path("waste/", include("apps.waste.urls")),
     path("service-worker.js", views.service_worker, name="service_worker"),
     path("api/", include("config.api_urls")),
