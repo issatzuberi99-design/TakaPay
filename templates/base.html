@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d5c63">
+    <meta name="description" content="TakaPay turns recyclable waste into value in Zanzibar.">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    <title>{% block title %}TakaPay{% endblock %}</title>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">TAKAPAY</a>
+        <nav aria-label="Main navigation">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'marketplace' %}">Marketplace</a>
+            {% if user.is_authenticated %}
+                {% if user.role == "admin" %}
+                    <a href="{% url 'admin_dashboard' %}">Admin</a>
+                {% elif user.role == "collector" %}
+                    <a href="{% url 'dashboard' %}">Collector Dashboard</a>
+                {% else %}
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'waste_report_create' %}">Report Waste</a>
+                    <a href="{% url 'waste_report_list' %}">My Reports</a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="nav-button" type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a class="nav-button" href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+    {% if messages %}
+        <div class="messages" aria-live="polite">
+            {% for message in messages %}<p class="message message-{{ message.tags }}">{{ message }}</p>{% endfor %}
+        </div>
+    {% endif %}
+    <main>{% block content %}{% endblock %}</main>
+    <footer class="site-footer">Building a cleaner, more valuable Zanzibar.</footer>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

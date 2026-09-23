@@ -1,0 +1,7 @@
+{% extends "accounts/form_page.html" %}
+{% block title %}Collector application | TakaPay{% endblock %}
+{% block content %}
+{% with heading="Apply as a collector" intro="Your application will be reviewed before you can receive collection jobs." submit_label="Submit application" %}
+    {{ block.super }}
+{% endwith %}
+{% endblock %}

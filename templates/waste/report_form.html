@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Report Waste | TakaPay{% endblock %}
+{% block content %}
+<section class="form-page report-form-page">
+    <p class="eyebrow">Customer reporting</p>
+    <h1>Report waste</h1>
+    <p class="form-intro">Tell us about recyclable waste and share where it can be collected.</p>
+    <form method="post" enctype="multipart/form-data" class="account-form" id="waste-report-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <p class="form-step">1. Select waste type</p>
+        <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+        {{ form.category }}
+        {{ form.category.errors }}
+
+        <p class="form-step">2. Describe the waste</p>
+        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+        {{ form.description.errors }}
+        <label for="{{ form.estimated_weight.id_for_label }}">{{ form.estimated_weight.label }}</label>
+        {{ form.estimated_weight }}
+        {{ form.estimated_weight.errors }}
+        <label for="{{ form.weight_unit.id_for_label }}">{{ form.weight_unit.label }}</label>
+        {{ form.weight_unit }}
+        {{ form.weight_unit.errors }}
+
+        <p class="form-step">3. Capture location</p>
+        <p class="location-help">GPS is captured only when you press the button. TakaPay does not continuously track you.</p>
+        <button class="button button-secondary" id="location-button" type="button">Use My Current Location</button>
+        <p id="location-status" class="location-status" aria-live="polite">Location not captured yet.</p>
+        {{ form.latitude }}{{ form.longitude }}{{ form.location_accuracy }}
+        {{ form.latitude.errors }}{{ form.longitude.errors }}{{ form.location_accuracy.errors }}
+
+        <p class="form-step">4. Add a photo (optional)</p>
+        <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+        {{ form.photo }}
+        {{ form.photo.errors }}
+        <button class="button button-primary" type="submit">Submit waste report</button>
+    </form>
+</section>
+<script src="{% static 'js/waste_report.js' %}"></script>
+{% endblock %}

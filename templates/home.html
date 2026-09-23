@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}TakaPay | Turn Waste Into Value{% endblock %}
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Zanzibar's waste-to-value platform</p>
+    <h1>Turn Waste<br><span>Into Value.</span></h1>
+    <p class="hero-copy">TakaPay helps citizens report recyclable waste, connect with verified collectors, and earn tokens that can become rewards or cash.</p>
+    <div class="hero-actions">
+        <a class="button button-primary" href="{% url 'register' %}">Start with TakaPay</a>
+        <button class="button button-secondary" id="install-button" type="button" hidden>Install TakaPay App</button>
+    </div>
+</section>
+<section class="flow-section" aria-labelledby="citizen-flow-title">
+    <div class="section-heading"><p class="eyebrow">For citizens</p><h2 id="citizen-flow-title">From report to reward</h2></div>
+    <div class="flow-grid">
+        <div><strong>01</strong><h3>Report</h3><p>Tell us what recyclable waste you have.</p></div>
+        <div><strong>02</strong><h3>GPS</h3><p>Share your location so collection is simple.</p></div>
+        <div><strong>03</strong><h3>Collect</h3><p>A verified collector picks it up.</p></div>
+        <div><strong>04</strong><h3>Verify</h3><p>The material is checked and recorded.</p></div>
+        <div><strong>05</strong><h3>Tokens</h3><p>Your wallet receives TakaPay Tokens.</p></div>
+        <div><strong>06</strong><h3>Reward or cash</h3><p>Redeem a reward or request money later.</p></div>
+    </div>
+</section>
+<section class="marketplace-strip">
+    <div><p class="eyebrow">For buyers</p><h2>Verified Waste → Marketplace → Buyer → Recycling</h2></div>
+    <a class="text-link" href="{% url 'marketplace' %}">Explore materials <span aria-hidden="true">↗</span></a>
+</section>
+{% endblock %}

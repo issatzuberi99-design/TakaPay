@@ -1,0 +1,10 @@
+{
+  "name": "TakaPay",
+  "short_name": "TakaPay",
+  "description": "Waste-to-value platform for Zanzibar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ec",
+  "theme_color": "#0d5c63",
+  "icons": []
+}

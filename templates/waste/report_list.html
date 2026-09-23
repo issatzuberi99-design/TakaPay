@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My Reports | TakaPay{% endblock %}
+{% block content %}
+<section class="placeholder-page report-list-page">
+    <p class="eyebrow">Customer reporting</p>
+    <div class="section-title-row"><h1>My Reports</h1><a class="button button-primary" href="{% url 'waste_report_create' %}">Report New Waste</a></div>
+    {% if reports %}
+        <div class="report-list">
+            {% for report in reports %}
+                <a class="report-item" href="{% url 'waste_report_detail' report.id %}">
+                    <span><strong>{{ report.category.name }}</strong><small>{{ report.created_at|date:"M j, Y" }}</small></span>
+                    <span><strong>{{ report.estimated_weight }} {{ report.get_weight_unit_display }}</strong><small>{% if report.latitude and report.longitude %}Location captured{% else %}No location{% endif %}</small></span>
+                    <span class="report-status">{{ report.get_status_display }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">You have not submitted a waste report yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

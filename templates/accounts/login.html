@@ -1,0 +1,7 @@
+{% extends "accounts/form_page.html" %}
+{% block title %}Login | TakaPay{% endblock %}
+{% block content %}
+{% with heading="Welcome back" intro="Log in to continue with TakaPay." submit_label="Login" %}
+    {{ block.super }}
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Waste Report | TakaPay{% endblock %}
+{% block content %}
+<section class="placeholder-page report-detail-page">
+    <p class="eyebrow">Submitted {{ report.created_at|date:"M j, Y, g:i a" }}</p>
+    <h1>{{ report.category.name }}</h1>
+    <p>{{ report.description }}</p>
+    <dl class="report-details">
+        <dt>Estimated weight</dt><dd>{{ report.estimated_weight }} {{ report.get_weight_unit_display }}</dd>
+        <dt>Status</dt><dd>{{ report.get_status_display }}</dd>
+        <dt>Latitude</dt><dd>{{ report.latitude }}</dd>
+        <dt>Longitude</dt><dd>{{ report.longitude }}</dd>
+        <dt>GPS accuracy</dt><dd>{{ report.location_accuracy }} meters</dd>
+    </dl>
+    {% if report.photo %}<img class="report-photo" src="{{ report.photo.url }}" alt="Photo of {{ report.category.name }} waste">{% endif %}
+    <p><a class="text-link" href="{% url 'waste_report_list' %}">Back to My Reports</a></p>
+</section>
+{% endblock %}

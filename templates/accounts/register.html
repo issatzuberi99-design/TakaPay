@@ -1,0 +1,7 @@
+{% extends "accounts/form_page.html" %}
+{% block title %}Register | TakaPay{% endblock %}
+{% block content %}
+{% with heading="Create a customer account" intro="Join TakaPay and start turning waste into value." submit_label="Create account" %}
+    {{ block.super }}
+{% endwith %}
+{% endblock %}

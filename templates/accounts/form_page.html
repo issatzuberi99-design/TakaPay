@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">TakaPay accounts</p>
+    <h1>{{ heading }}</h1>
+    <p class="form-intro">{{ intro }}</p>
+    <form method="post" class="account-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+            {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+        {% endfor %}
+        <button class="button button-primary" type="submit">{{ submit_label }}</button>
+    </form>
+    {% if request.resolver_match.url_name == "register" %}
+        <p class="form-intro">Interested in collecting? <a class="text-link" href="{% url 'collector_register' %}">Apply as a collector</a></p>
+    {% endif %}
+</section>
+{% endblock %}
