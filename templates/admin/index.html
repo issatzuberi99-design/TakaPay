@@ -1,15 +1,171 @@
-{% extends "admin/base_site.html" %}
-{% load i18n %}
-{% block title %}{% if title %}{{ title }} | {% endif %}{{ site_title|default:_('Django site admin') }}{% endblock %}
-{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
-{% block breadcrumbs %}{% endblock %}
-{% block content %}
-<div id="content-main">
-    <p class="takapay-admin-dashboard-link"><a href="{% url 'admin_analytics_dashboard' %}">Open TakaPay Analytics Dashboard</a></p>
-    {% if app_list %}
-        {% for app in app_list %}{% include "admin/app_list.html" with app=app show_changelinks=True %}{% endfor %}
-    {% else %}
-        <p>{% translate "You don't have permission to view or edit anything." %}</p>
-    {% endif %}
-</div>
-{% endblock %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d5c63">
+<meta name="description" content="TakaPay: Waste as Opportunity. Report recyclable waste in Zanzibar and earn TakaPay Tokens.">
+<link rel="stylesheet" href="styles.css">
+<title>TakaPay | Waste as Opportunity</title>
+</head>
+<body>
+<!-- Django: landing_navigation.html -->
+<header class="landing-header">
+  <a class="landing-wordmark" href="#" aria-label="TakaPay home"><span>Taka</span><em>Pay</em></a>
+  <button class="landing-menu-toggle" type="button" aria-expanded="false" aria-controls="landing-menu" aria-label="Open navigation menu">&#9776;</button>
+  <nav class="landing-nav" id="landing-menu" aria-label="Main navigation">
+    <a href="#marketplace">Marketplace</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#">Sign in</a>
+    <a class="ds-button ds-button--primary" href="#">Get started</a>
+  </nav>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Waste as Opportunity.</h1>
+      <p class="lead">Report recyclable waste, connect with verified collectors, and turn verified collections into TakaPay Tokens.</p>
+      <div class="actions">
+        <a class="ds-button ds-button--primary" href="#">Report Waste</a>
+        <a class="ds-button ds-button--secondary" href="#marketplace">Explore Marketplace</a>
+      </div>
+    </div>
+    <div>
+      <div class="ph" role="img" aria-label="Placeholder: Zanzibar street scene">
+        <p><b>assets/hero-zanzibar-street.webp</b>Intended: a Stone Town street in daily use. A collector with sorted bags of plastic and cardboard, neighbours and shopfronts behind. Local, working, not a postcard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="wrap">
+    <h2>Four steps from waste to value.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Report</h3><p>Report recyclable waste and share your location.</p></div>
+      <div class="step"><div class="n">2</div><h3>Collect</h3><p>A verified collector accepts and completes the collection.</p></div>
+      <div class="step"><div class="n">3</div><h3>Earn</h3><p>A verified collection generates TakaPay Tokens.</p></div>
+      <div class="step"><div class="n">4</div><h3>Redeem</h3><p>Use tokens in the Rewards Store or request a cash-out.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE LOOP -->
+<section class="loop">
+  <div class="wrap loop-grid">
+    <div>
+      <h2>Value that keeps moving.</h2>
+      <p class="lead" style="margin-top:1.2rem">Material does not end at the bin. Each verified collection sends value back into the community, and material back into use.</p>
+      <ul class="loop-list">
+        <li>Waste</li><li>Collection</li><li>Verified material</li><li>TakaPay Tokens</li><li>Rewards, cash-out and marketplace value</li><li>More circulation</li>
+      </ul>
+    </div>
+    <svg viewBox="0 0 400 400" role="img" aria-label="Circular flow: Waste, Collection, Verified material, TakaPay Tokens, Rewards cash-out and marketplace value, back to Waste">
+      <circle cx="200" cy="200" r="130" fill="none" stroke="#cbd8d3" stroke-width="2"/>
+      <path d="M200 70 A130 130 0 0 1 323 160" fill="none" stroke="#0f766e" stroke-width="4"/>
+      <path d="M323 160 A130 130 0 0 1 276 308" fill="none" stroke="#0f766e" stroke-width="4"/>
+      <path d="M276 308 A130 130 0 0 1 124 308" fill="none" stroke="#0f766e" stroke-width="4"/>
+      <path d="M124 308 A130 130 0 0 1 77 160" fill="none" stroke="#0f766e" stroke-width="4"/>
+      <path d="M77 160 A130 130 0 0 1 200 70" fill="none" stroke="#a8442e" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>
+      <g font-family="system-ui,sans-serif" font-weight="700" font-size="14" text-anchor="middle">
+        <g><circle cx="200" cy="70" r="30" fill="#0b2a2c"/><text x="200" y="75" fill="#fff">Waste</text></g>
+        <g><circle cx="323" cy="160" r="34" fill="#0f766e"/><text x="323" y="165" fill="#fff" font-size="12">Collection</text></g>
+        <g><circle cx="276" cy="308" r="36" fill="#0f766e"/><text x="276" y="306" fill="#fff" font-size="12">Verified</text><text x="276" y="321" fill="#fff" font-size="12">material</text></g>
+        <g><circle cx="124" cy="308" r="36" fill="#0f766e"/><text x="124" y="306" fill="#fff" font-size="12">TakaPay</text><text x="124" y="321" fill="#fff" font-size="12">Tokens</text></g>
+        <g><circle cx="77" cy="160" r="34" fill="#fff" stroke="#0f766e" stroke-width="3"/><text x="77" y="157" fill="#0b2a2c" font-size="11">Rewards</text><text x="77" y="171" fill="#0b2a2c" font-size="11">Cash-out</text></g>
+        <text x="200" y="205" fill="#0b2a2c" font-size="18">Circulation</text>
+        <text x="200" y="226" fill="#4d6867" font-size="12" font-weight="500">material and value</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- MARKETPLACE -->
+<section id="marketplace">
+  <div class="wrap split">
+    <div>
+      <span class="tag">For buyers</span>
+      <h2>The recyclable materials marketplace.</h2>
+      <p class="lead">External buyers can request the recyclable materials they need. Collected material becomes a supply, not a loss.</p>
+      <div class="actions"><a class="ds-button ds-button--primary" href="#">Explore Marketplace</a></div>
+    </div>
+    <div class="materials">
+      <div class="ph"><p><b>assets/material-plastics.webp</b>Plastics</p></div>
+      <div class="ph"><p><b>assets/material-cardboard.webp</b>Cardboard</p></div>
+      <div class="ph"><p><b>assets/material-metal.webp</b>Metal</p></div>
+      <div class="ph"><p><b>assets/material-other.webp</b>Other recyclable materials</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REWARDS -->
+<section class="reward-strip">
+  <div class="wrap split reorder-mobile">
+    <div class="token-card" aria-label="Illustrative Rewards Store preview, sample content only">
+      <small>Rewards Store preview (sample)</small>
+      <strong>Spend TakaPay Tokens</strong>
+      <div class="row"><span>Available rewards</span><span>Redeem</span></div>
+      <div class="row"><span>Cash-out request</span><span>Request</span></div>
+    </div>
+    <div>
+      <span class="tag tag--coral">For customers</span>
+      <h2>Your tokens, your choice.</h2>
+      <p class="lead">Customers spend TakaPay Tokens on available rewards in the Rewards Store, or request a cash-out.</p>
+      <div class="actions"><a class="ds-button ds-button--secondary" href="#">Explore Rewards</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- COLLECTORS -->
+<section class="dark on-dark">
+  <div class="wrap split">
+    <div>
+      <span class="tag">For collectors</span>
+      <h2>Collecting is work that pays.</h2>
+      <p class="lead">Verified collectors take part in a working system, not a charity drive.</p>
+      <ul class="checks"><li>Accept collection requests</li><li>Verify the actual quantities</li><li>Complete the collection</li></ul>
+      <div class="actions"><a class="ds-button ds-button--primary" href="#">Become a Collector</a></div>
+    </div>
+    <div class="ph" role="img" aria-label="Placeholder: collector at work"><p><b>assets/collector-at-work.webp</b>Intended: a collector weighing and checking sorted material with a household, in a local lane or yard.</p></div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="impact">
+  <div class="wrap">
+    <h2>Every verified collection keeps material in circulation and creates measurable value.</h2>
+    <div class="chain" aria-label="What one collection sets in motion">
+      <span>A report</span><span>A collection</span><span>Verified quantity</span><span>Tokens earned</span><span>Material back in use</span>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final on-dark">
+  <div class="wrap">
+    <h2>Make waste part of the value chain.</h2>
+    <div class="actions">
+      <a class="ds-button ds-button--primary" href="#">Start with TakaPay</a>
+      <a class="ds-button ds-button--secondary" href="#marketplace">Explore Marketplace</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer dark on-dark">
+  <div class="wrap foot">
+    <div><a class="landing-wordmark" href="#"><span>Taka</span><em>Pay</em></a><p>Waste as Opportunity</p></div>
+    <nav aria-label="Footer navigation"><a href="#marketplace">Marketplace</a><a href="#how-it-works">How it works</a><a href="#">Sign in</a><a href="#">Get started</a></nav>
+  </div>
+</footer>
+
+<script>
+const t=document.querySelector('.landing-menu-toggle'),m=document.getElementById('landing-menu');
+t.addEventListener('click',()=>{const o=m.classList.toggle('is-open');t.setAttribute('aria-expanded',o)});
+</script>
+</body>
+</html>

@@ -12,13 +12,15 @@
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     <link rel="stylesheet" href="{% static 'css/layouts.css' %}">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block page_styles %}{% endblock %}
     <title>{% block title %}TakaPay{% endblock %}</title>
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    {% include "components/navigation.html" %}
+    {% block site_navigation %}{% include "components/navigation.html" %}{% endblock %}
     {% include "components/messages.html" %}
     <main>{% block content %}{% endblock %}</main>
-    <footer class="site-footer">Building a cleaner, more valuable Zanzibar.</footer>
+    {% block site_footer %}<footer class="site-footer">Building a cleaner, more valuable Zanzibar.</footer>{% endblock %}
     <script src="{% static 'js/app.js' %}"></script>
+    {% block page_scripts %}{% endblock %}
 </body>
 </html>

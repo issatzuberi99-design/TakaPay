@@ -1,28 +1,146 @@
 {% extends "base.html" %}
-{% block title %}TakaPay | Turn Waste Into Value{% endblock %}
+{% load static %}
+{% block title %}TakaPay | Waste as Opportunity{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}">{% endblock %}
+{% block site_navigation %}{% include "components/landing_navigation.html" %}{% endblock %}
 {% block content %}
-<section class="hero">
-    <p class="eyebrow">Zanzibar's waste-to-value platform</p>
-    <h1>Turn Waste<br><span>Into Value.</span></h1>
-    <p class="hero-copy">TakaPay helps citizens report recyclable waste, connect with verified collectors, and earn tokens that can become rewards or cash.</p>
-    <div class="hero-actions">
-        <a class="button button-primary" href="{% url 'register' %}">Start with TakaPay</a>
-        <button class="button button-secondary" id="install-button" type="button" hidden>Install TakaPay App</button>
+<section class="landing-hero" aria-labelledby="landing-title">
+    <div class="landing-container landing-hero__grid">
+        <div class="landing-hero__copy">
+            <h1 id="landing-title">Waste as Opportunity.</h1>
+            <p class="landing-lead">Report recyclable waste, connect with verified collectors, and turn verified collections into TakaPay Tokens.</p>
+            <div class="landing-actions">
+                <a class="ds-button ds-button--primary" href="{% url 'waste_report_create' %}">Report Waste <img src="{% static 'images/icons/arrow-right.svg' %}" alt="" width="20" height="20"></a>
+                <a class="ds-button ds-button--secondary" href="{% url 'marketplace' %}">Explore Marketplace</a>
+            </div>
+            <button class="landing-install" id="install-button" type="button" hidden><img src="{% static 'images/icons/check.svg' %}" alt="" width="20" height="20"> Install TakaPay</button>
+        </div>
+        <figure class="landing-hero__media">
+            <img src="{% static 'images/landing/hero-zanzibar-street.jpg' %}" alt="Everyday life on a busy Stone Town street in Zanzibar" width="1920" height="1080" fetchpriority="high">
+            <figcaption>Stone Town, Zanzibar</figcaption>
+        </figure>
     </div>
 </section>
-<section class="flow-section" aria-labelledby="citizen-flow-title">
-    <div class="section-heading"><p class="eyebrow">For citizens</p><h2 id="citizen-flow-title">From report to reward</h2></div>
-    <div class="flow-grid">
-        <div><strong>01</strong><h3>Report</h3><p>Tell us what recyclable waste you have.</p></div>
-        <div><strong>02</strong><h3>GPS</h3><p>Share your location so collection is simple.</p></div>
-        <div><strong>03</strong><h3>Collect</h3><p>A verified collector picks it up.</p></div>
-        <div><strong>04</strong><h3>Verify</h3><p>The material is checked and recorded.</p></div>
-        <div><strong>05</strong><h3>Tokens</h3><p>Your wallet receives TakaPay Tokens.</p></div>
-        <div><strong>06</strong><h3>Reward or cash</h3><p>Redeem a reward or request money later.</p></div>
+
+<section class="landing-section" id="how-it-works" aria-labelledby="how-title">
+    <div class="landing-container">
+        <h2 id="how-title">Four steps from waste to value.</h2>
+        <div class="landing-steps">
+            <article class="landing-step">
+                <img class="landing-step__photo" src="{% static 'images/landing/how-it-works-report.jpg' %}" alt="A person uses a phone outdoors to share information" loading="lazy">
+                <div class="landing-step__top"><span class="landing-step__number">1</span><img src="{% static 'images/icons/report-waste.svg' %}" alt="" width="24" height="24"></div>
+                <h3>Report</h3><p>Report recyclable waste and share your location.</p>
+            </article>
+            <article class="landing-step">
+                <img class="landing-step__photo" src="{% static 'images/landing/how-it-works-collect.jpg' %}" alt="A worker sorts collected recyclable materials in a neighborhood" loading="lazy">
+                <div class="landing-step__top"><span class="landing-step__number">2</span><img src="{% static 'images/icons/collection.svg' %}" alt="" width="24" height="24"></div>
+                <h3>Collect</h3><p>A verified collector accepts and completes the collection.</p>
+            </article>
+            <article class="landing-step">
+                <img class="landing-step__photo" src="{% static 'images/landing/how-it-works-earn.jpg' %}" alt="A plastic bottle collection facility for recycling" loading="lazy">
+                <div class="landing-step__top"><span class="landing-step__number">3</span><img src="{% static 'images/icons/token.svg' %}" alt="" width="24" height="24"></div>
+                <h3>Earn</h3><p>A verified collection generates TakaPay Tokens.</p>
+            </article>
+            <article class="landing-step">
+                <img class="landing-step__photo" src="{% static 'images/landing/how-it-works-redeem.jpg' %}" alt="A shopper chooses fresh goods at an outdoor market" loading="lazy">
+                <div class="landing-step__top"><span class="landing-step__number">4</span><img src="{% static 'images/icons/reward.svg' %}" alt="" width="24" height="24"></div>
+                <h3>Redeem</h3><p>Use tokens in the Rewards Store or request a cash-out.</p>
+            </article>
+        </div>
     </div>
 </section>
-<section class="marketplace-strip">
-    <div><p class="eyebrow">For buyers</p><h2>Verified Waste → Marketplace → Buyer → Recycling</h2></div>
-    <a class="text-link" href="{% url 'marketplace' %}">Explore materials <span aria-hidden="true">↗</span></a>
+
+<section class="landing-section landing-loop" aria-labelledby="loop-title">
+    <div class="landing-container landing-loop__grid">
+        <div>
+            <h2 id="loop-title">Value that keeps moving.</h2>
+            <p class="landing-lead">Material does not end at the bin. Each verified collection sends value back to the community, and material back into use.</p>
+            <ol class="landing-loop__list">
+                <li>Waste</li><li>Collection</li><li>Verified material</li><li>TakaPay Tokens</li><li>Rewards, cash-out and marketplace value</li><li>More circulation</li>
+            </ol>
+        </div>
+        <svg viewBox="0 0 400 400" role="img" aria-label="Circular flow: Waste, Collection, Verified material, TakaPay Tokens, Rewards and cash-out, and back to Waste">
+            <circle cx="200" cy="200" r="130" fill="none" stroke="#cbd8d3" stroke-width="2"/>
+            <path d="M200 70A130 130 0 0 1 323 160M323 160A130 130 0 0 1 276 308M276 308A130 130 0 0 1 124 308M124 308A130 130 0 0 1 77 160" fill="none" stroke="#0f766e" stroke-width="4"/>
+            <path d="M77 160A130 130 0 0 1 200 70" fill="none" stroke="#a8442e" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>
+            <g font-family="system-ui,sans-serif" font-weight="700" font-size="12" text-anchor="middle">
+                <circle cx="200" cy="70" r="30" fill="#0b2a2c"/><text x="200" y="75" fill="#fff" font-size="14">Waste</text>
+                <circle cx="323" cy="160" r="34" fill="#0f766e"/><text x="323" y="165" fill="#fff">Collection</text>
+                <circle cx="276" cy="308" r="36" fill="#0f766e"/><text x="276" y="306" fill="#fff">Verified</text><text x="276" y="321" fill="#fff">material</text>
+                <circle cx="124" cy="308" r="36" fill="#0f766e"/><text x="124" y="306" fill="#fff">TakaPay</text><text x="124" y="321" fill="#fff">Tokens</text>
+                <circle cx="77" cy="160" r="34" fill="#fff" stroke="#0f766e" stroke-width="3"/><text x="77" y="157" fill="#0b2a2c" font-size="11">Rewards</text><text x="77" y="171" fill="#0b2a2c" font-size="11">Cash-out</text>
+                <text x="200" y="205" fill="#0b2a2c" font-size="18">Circulation</text>
+            </g>
+        </svg>
+    </div>
+</section>
+
+<section class="landing-section" id="marketplace" aria-labelledby="market-title">
+    <div class="landing-container landing-split">
+        <div>
+            <span class="landing-tag">For buyers</span>
+            <h2 id="market-title">The recyclable materials marketplace.</h2>
+            <p class="landing-lead">External buyers can request plastics, cardboard, metal and other recyclable materials. Collected material becomes supply, not waste.</p>
+            <div class="landing-actions"><a class="ds-button ds-button--primary" href="{% url 'marketplace' %}">Explore Marketplace <img src="{% static 'images/icons/arrow-right.svg' %}" alt="" width="20" height="20"></a></div>
+        </div>
+        <figure class="landing-figure"><img src="{% static 'images/landing/marketplace-materials.jpg' %}" alt="Sorted plastic bottles prepared for recycling" loading="lazy"><figcaption>Collected materials, ready to meet buyers.</figcaption></figure>
+    </div>
+</section>
+
+<section class="landing-section landing-rewards" aria-labelledby="rewards-title">
+    <div class="landing-container landing-split">
+        <div class="landing-token-card" aria-label="Rewards Store overview">
+            <img src="{% static 'images/icons/reward.svg' %}" alt="" width="32" height="32">
+            <strong>Spend TakaPay Tokens</strong>
+            <div class="landing-token-row"><span>Available rewards</span><span>Redeem</span></div>
+            <div class="landing-token-row"><span>Cash-out</span><span>Request</span></div>
+        </div>
+        <div>
+            <span class="landing-tag landing-tag--coral">For customers</span>
+            <h2 id="rewards-title">Your tokens, your choice.</h2>
+            <p class="landing-lead">Customers spend TakaPay Tokens on available rewards in the Rewards Store. This is separate from the materials marketplace, which is for external buyers.</p>
+            <div class="landing-actions"><a class="ds-button ds-button--secondary" href="{% url 'reward_list' %}">Explore Rewards</a></div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section landing-dark" aria-labelledby="community-title">
+    <div class="landing-container landing-split">
+        <div>
+            <span class="landing-tag">For collectors</span>
+            <h2 id="community-title">Collecting is work that pays.</h2>
+            <p class="landing-lead">Verified collectors take part in a working system, not a charity drive.</p>
+            <ul class="landing-checks"><li>Accept collection requests</li><li>Verify the actual quantities</li><li>Complete the collection</li></ul>
+            <div class="landing-actions"><a class="ds-button ds-button--primary" href="{% url 'collector_register' %}">Become a Collector <img src="{% static 'images/icons/arrow-right.svg' %}" alt="" width="20" height="20"></a></div>
+        </div>
+        <img class="landing-photo" src="{% static 'images/landing/collector-community.jpg' %}" alt="Community members work together to sort recyclable materials" loading="lazy">
+    </div>
+</section>
+
+<section class="landing-section landing-impact" aria-labelledby="impact-title">
+    <div class="landing-container">
+        <h2 id="impact-title">Every verified collection keeps material in circulation and creates measurable value.</h2>
+        <ul class="landing-chain" aria-label="What one collection sets in motion"><li>A report</li><li>A collection</li><li>Verified quantity</li><li>Tokens earned</li><li>Material back in use</li></ul>
+    </div>
+</section>
+
+<section class="landing-section landing-final" aria-labelledby="final-title">
+    <div class="landing-container">
+        <h2 id="final-title">Make waste part of the value chain.</h2>
+        <div class="landing-actions">
+            <a class="ds-button ds-button--primary" href="{% url 'register' %}">Start with TakaPay</a>
+            <a class="ds-button ds-button--secondary" href="{% url 'marketplace' %}">Explore Marketplace</a>
+        </div>
+    </div>
 </section>
 {% endblock %}
+{% block site_footer %}
+<footer class="landing-footer">
+    <div class="landing-container landing-footer__grid">
+        <div><a class="landing-wordmark" href="/" aria-label="TakaPay home"><span>Taka</span><em>Pay</em></a><p>Waste as Opportunity</p></div>
+        <nav class="landing-footer__nav" aria-label="Footer navigation"><a href="{% url 'marketplace' %}">Marketplace</a><a href="#how-it-works">How it works</a><a href="{% url 'login' %}">Sign in</a><a href="{% url 'register' %}">Get started</a></nav>
+    </div>
+</footer>
+{% endblock %}
+{% block page_scripts %}<script src="{% static 'js/landing.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,14 @@
+{% load static %}
+<header class="landing-header">
+    <a class="landing-wordmark" href="/" aria-label="TakaPay home"><span>Taka</span><em>Pay</em></a>
+    <button class="landing-menu-toggle" type="button" aria-expanded="false" aria-controls="landing-menu" aria-label="Open navigation menu">
+        <img class="landing-menu-icon landing-menu-icon--open" src="{% static 'images/icons/menu.svg' %}" alt="" width="24" height="24">
+        <img class="landing-menu-icon landing-menu-icon--close" src="{% static 'images/icons/close.svg' %}" alt="" width="24" height="24">
+    </button>
+    <nav class="landing-nav" id="landing-menu" aria-label="Main navigation">
+        <a href="{% url 'marketplace' %}">Marketplace</a>
+        <a href="#how-it-works">How it works</a>
+        <a class="landing-nav-signin" href="{% url 'login' %}">Sign in</a>
+        <a class="ds-button ds-button--primary landing-nav-cta" href="{% url 'register' %}">Get started</a>
+    </nav>
+</header>
