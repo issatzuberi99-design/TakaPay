@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
 
+from .analytics import dashboard_context
 from .decorators import approved_collector_required
 from .forms import (
     CollectorRegistrationForm,
@@ -49,7 +51,7 @@ def dashboard(request):
             return render(request, "accounts/pending_verification.html")
         return render(request, "accounts/collector_dashboard.html")
     if request.user.role == User.Role.ADMIN:
-        return render(request, "accounts/admin_dashboard.html")
+        return redirect("admin_analytics_dashboard")
     return render(request, "accounts/customer_dashboard.html")
 
 
@@ -59,8 +61,23 @@ def collector_jobs(request):
 
 
 @login_required
+def admin_analytics_dashboard(request):
+    can_view = request.user.is_active and (
+        request.user.is_staff
+        or request.user.is_superuser
+        or request.user.role == User.Role.ADMIN
+    )
+    if not can_view:
+        raise PermissionDenied
+    return render(request, "accounts/admin_dashboard.html", dashboard_context(request))
+
+
+@login_required
 def admin_dashboard(request):
-    if request.user.role != User.Role.ADMIN:
-        messages.error(request, "You do not have permission to access this page.")
-        return redirect("dashboard")
-    return render(request, "accounts/admin_dashboard.html")
+    if not (
+        request.user.is_staff
+        or request.user.is_superuser
+        or request.user.role == User.Role.ADMIN
+    ):
+        raise PermissionDenied
+    return redirect("admin_analytics_dashboard")

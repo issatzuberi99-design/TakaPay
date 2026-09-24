@@ -100,3 +100,65 @@ nav button { cursor: pointer; }
     .reward-grid { grid-template-columns: 1fr; }
     .marketplace-strip { align-items: flex-start; flex-direction: column; }
 }
+
+/* TakaPay operations analytics */
+.admin-dashboard { margin: 0 auto; max-width: 1280px; padding: 48px 28px 100px; }
+.admin-dashboard-header { align-items: flex-end; display: flex; flex-wrap: wrap; gap: 28px; justify-content: space-between; }
+.admin-dashboard-header h1 { font-size: clamp(2.7rem, 6vw, 5rem); margin: 18px 0; max-width: 820px; }
+.dashboard-intro, .dashboard-help, .dashboard-summary { color: var(--muted); font: .9rem/1.6 Arial, sans-serif; }
+.dashboard-intro { max-width: 620px; }
+.dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.dashboard-filter { align-items: center; background: var(--white); display: flex; flex-wrap: wrap; gap: 12px; margin: 30px 0 48px; padding: 16px; }
+.dashboard-filter label { font: 700 .85rem Arial, sans-serif; }
+.dashboard-filter select { background: var(--white); border: 1px solid var(--line); font: .9rem Arial, sans-serif; min-height: 42px; padding: 8px 12px; }
+.dashboard-filter span { color: var(--muted); font: .8rem Arial, sans-serif; }
+.dashboard-section { margin-top: 54px; }
+.dashboard-section-heading { align-items: flex-end; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; margin-bottom: 22px; }
+.dashboard-section-heading h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 400; margin: 6px 0 0; }
+.dashboard-section-heading .eyebrow { margin: 0; }
+.dashboard-kpis { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dashboard-kpi { background: var(--white); border-top: 3px solid var(--teal); display: grid; gap: 10px; min-height: 130px; padding: 20px; }
+.dashboard-kpi > span { color: var(--muted); font: .82rem/1.35 Arial, sans-serif; }
+.dashboard-kpi strong { font-size: clamp(1.4rem, 2.4vw, 2rem); font-weight: 400; overflow-wrap: anywhere; }
+.dashboard-kpi small { color: var(--muted); font: .72rem/1.4 Arial, sans-serif; }
+.dashboard-kpi-highlight { border-top-color: var(--coral); }
+.dashboard-panels { display: grid; gap: 20px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dashboard-panel { background: var(--white); min-width: 0; padding: 24px; }
+.dashboard-panel h3 { font-size: 1.4rem; font-weight: 400; margin: 0 0 8px; }
+.dashboard-panel h4 { font-size: 1rem; margin: 26px 0 8px; }
+.dashboard-status-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.dashboard-status-card { background: var(--white); border-left: 3px solid var(--teal); display: grid; gap: 12px; padding: 18px; }
+.dashboard-status-card span { color: var(--muted); font: .8rem Arial, sans-serif; }
+.dashboard-status-card strong { font-size: 1.5rem; font-weight: 400; }
+.dashboard-status-card-highlight { border-left-color: var(--coral); }
+.dashboard-status-grid-compact { grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); }
+.dashboard-status-grid-compact .dashboard-status-card { padding: 14px; }
+.dashboard-status-grid-compact .dashboard-status-card strong { font-size: 1.2rem; }
+.dashboard-table-wrap { max-width: 100%; overflow-x: auto; }
+.dashboard-table { border-collapse: collapse; font: .83rem/1.5 Arial, sans-serif; margin-top: 22px; min-width: 580px; width: 100%; }
+.dashboard-table caption { color: var(--muted); padding: 0 0 10px; text-align: left; }
+.dashboard-table th, .dashboard-table td { border-bottom: 1px solid var(--line); padding: 11px 10px; text-align: left; }
+.dashboard-table thead th { color: var(--muted); font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+.dashboard-table tbody th { font-weight: 700; }
+.category-chart { display: grid; gap: 14px; margin-top: 22px; }
+.category-chart-row { align-items: center; display: grid; font: .8rem Arial, sans-serif; gap: 12px; grid-template-columns: minmax(85px, 1fr) minmax(90px, 3fr) minmax(72px, auto); }
+.category-chart-row strong { font-size: .76rem; text-align: right; }
+.category-chart-track { background: #e7eee8; height: 12px; overflow: hidden; }
+.category-chart-track span { background: var(--teal); display: block; height: 100%; min-width: 0; }
+.activity-chart { align-items: stretch; border-bottom: 1px solid var(--line); display: flex; gap: 4px; height: 180px; margin: 24px 0 0; overflow-x: auto; padding: 0 0 8px; }
+.activity-day { align-items: center; display: flex; flex: 1 0 22px; flex-direction: column; font: .62rem Arial, sans-serif; gap: 5px; justify-content: flex-end; min-width: 22px; }
+.activity-bar-track { align-items: flex-end; background: #edf1ec; display: flex; height: 112px; justify-content: center; width: 100%; }
+.activity-bar { background: var(--coral); display: block; min-height: 0; width: 72%; }
+.activity-count { color: var(--muted); }
+.activity-day time { color: var(--muted); white-space: nowrap; }
+.dashboard-metrics-list { margin: 18px 0 0; }
+.dashboard-metrics-list div, .dashboard-ranked-list li { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 12px; justify-content: space-between; padding: 12px 0; }
+.dashboard-metrics-list dt { color: var(--muted); font: .85rem Arial, sans-serif; }
+.dashboard-metrics-list dd { font-variant-numeric: tabular-nums; margin: 0; }
+.dashboard-ranked-list { list-style: none; margin: 0; padding: 0; }
+.dashboard-ranked-list li { font: .88rem Arial, sans-serif; }
+.takapay-admin-dashboard-link { background: #e7eee8; border-left: 4px solid var(--teal); margin: 0 0 24px; padding: 14px 18px; }
+.takapay-admin-dashboard-link a { color: var(--teal); font-weight: 700; }
+@media (max-width: 900px) { .dashboard-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .admin-dashboard { padding: 35px 18px 70px; } .dashboard-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-panels { grid-template-columns: 1fr; } .dashboard-filter { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 420px) { .dashboard-kpis { grid-template-columns: 1fr; } .dashboard-actions { width: 100%; } }

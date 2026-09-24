@@ -1,5 +1,168 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard | TakaPay{% endblock %}
+{% block title %}TakaPay Admin Dashboard{% endblock %}
 {% block content %}
-<section class="placeholder-page"><p class="eyebrow">Administration</p><h1>Admin Dashboard</h1><p>TakaPay administration dashboard.</p><a class="button button-primary" href="{% url 'admin:index' %}">Open Django admin</a></section>
+<section class="admin-dashboard">
+    <header class="admin-dashboard-header">
+        <div>
+            <p class="eyebrow">Platform operations</p>
+            <h1>TakaPay Admin Dashboard</h1>
+            <p class="dashboard-intro">A current view of recycling, collections, rewards, cash-outs, and the public marketplace.</p>
+        </div>
+        <div class="dashboard-actions">
+            <a class="button button-secondary" href="{% url 'admin:index' %}">Open Django Admin</a>
+            <a class="button button-secondary" href="{% url 'marketplace' %}">View Marketplace</a>
+        </div>
+    </header>
+
+    <form class="dashboard-filter" method="get" aria-label="Filter dashboard date range">
+        <label for="period">Date range</label>
+        <select name="period" id="period">
+            {% for value, label in period_choices %}
+                <option value="{{ value }}" {% if period == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="button button-primary" type="submit">Apply</button>
+        <span>Time-based metrics: {{ period_label }}</span>
+    </form>
+
+    <section aria-labelledby="overview-heading">
+        <div class="dashboard-section-heading">
+            <div><p class="eyebrow">Overview</p><h2 id="overview-heading">Platform at a glance</h2></div>
+        </div>
+        <div class="dashboard-kpis">
+            <article class="dashboard-kpi"><span>Total waste reports</span><strong>{{ total_waste_reports }}</strong><small>{{ period_label }}</small></article>
+            <article class="dashboard-kpi"><span>Estimated waste</span><strong>{{ estimated_waste_kg|floatformat:2 }} kg</strong><small>Converted to kilograms</small></article>
+            <article class="dashboard-kpi"><span>Collected actual waste</span><strong>{{ collected_waste_kg|floatformat:2 }} kg</strong><small>Completed collections</small></article>
+            <article class="dashboard-kpi"><span>Verified waste</span><strong>{{ verified_waste_kg|floatformat:2 }} kg</strong><small>Verified reports</small></article>
+            <article class="dashboard-kpi"><span>Approved collectors</span><strong>{{ approved_collectors }}</strong><small>{{ collectors_with_completions }} with completions in range</small></article>
+            <article class="dashboard-kpi"><span>Available collections</span><strong>{{ available_collections }}</strong><small>Current open queue</small></article>
+            <article class="dashboard-kpi"><span>Completed collections</span><strong>{{ completed_collections }}</strong><small>{{ period_label }}</small></article>
+            <article class="dashboard-kpi"><span>Tokens issued</span><strong>{{ tokens_issued|floatformat:2 }}</strong><small>Collection reward ledger entries</small></article>
+            <article class="dashboard-kpi"><span>Tokens redeemed</span><strong>{{ tokens_redeemed|floatformat:2 }}</strong><small>Reward redemption ledger entries</small></article>
+            <article class="dashboard-kpi dashboard-kpi-highlight"><span>Pending cash-outs</span><strong>{{ pending_cashouts }}</strong><small>Current queue</small></article>
+            <article class="dashboard-kpi"><span>Completed cash-outs</span><strong>{{ cashout_counts.completed }}</strong><small>Requests from {{ period_label|lower }}</small></article>
+            <article class="dashboard-kpi"><span>Active rewards</span><strong>{{ active_rewards }}</strong><small>{{ inactive_rewards }} inactive</small></article>
+            <article class="dashboard-kpi"><span>Reward redemptions</span><strong>{{ total_redemptions }}</strong><small>{{ period_label }}</small></article>
+            <article class="dashboard-kpi"><span>Active marketplace materials</span><strong>{{ active_materials }}</strong><small>{{ available_materials }} with stock available</small></article>
+            <article class="dashboard-kpi dashboard-kpi-highlight"><span>Pending buyer requests</span><strong>{{ pending_buyer_requests }}</strong><small>Current queue</small></article>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="waste-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Waste</p><h2 id="waste-heading">Waste activity</h2></div></div>
+        <div class="dashboard-panels">
+            <article class="dashboard-panel">
+                <h3>Waste by category</h3>
+                <p class="dashboard-help">Estimated weight is normalized to kilograms. Collection totals use completed actual weights.</p>
+                {% if total_waste_reports %}
+                    <div class="category-chart" role="img" aria-label="Estimated waste weight by category">
+                        {% for category in category_activity %}
+                            <div class="category-chart-row">
+                                <span>{{ category.name }}</span>
+                                <div class="category-chart-track"><span style="width: {{ category.bar_width }}%"></span></div>
+                                <strong>{{ category.estimated_kg|floatformat:2 }} kg</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="dashboard-table-wrap">
+                        <table class="dashboard-table">
+                            <caption>Waste category totals for {{ period_label|lower }}</caption>
+                            <thead><tr><th scope="col">Category</th><th scope="col">Reports</th><th scope="col">Estimated</th><th scope="col">Collected actual</th><th scope="col">Verified reports</th></tr></thead>
+                            <tbody>{% for category in category_activity %}<tr><th scope="row">{{ category.name }}</th><td>{{ category.report_count }}</td><td>{{ category.estimated_kg|floatformat:2 }} kg</td><td>{{ category.collected_kg|floatformat:2 }} kg</td><td>{{ category.verified_count }}</td></tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                {% else %}<p class="empty-state">No waste reports yet.</p>{% endif %}
+            </article>
+            <article class="dashboard-panel">
+                <h3>Waste reports over time</h3>
+                <p class="dashboard-help">Daily report counts and estimated kilograms. Days without activity are shown as zero.</p>
+                {% if total_waste_reports %}
+                    <div class="activity-chart" role="img" aria-label="Daily estimated waste activity">
+                        {% for day in daily_activity %}
+                            <div class="activity-day" title="{{ day.day|date:'M j, Y' }}: {{ day.report_count }} reports, {{ day.estimated_kg|floatformat:2 }} kg">
+                                <span class="activity-bar-track"><span class="activity-bar" style="height: {{ day.bar_height }}%"></span></span>
+                                <span class="activity-count">{{ day.report_count }}</span>
+                                <time datetime="{{ day.day|date:'Y-m-d' }}">{{ day.day|date:'M j' }}</time>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="dashboard-table-wrap">
+                        <table class="dashboard-table">
+                            <caption>Daily waste reports and estimated weights</caption>
+                            <thead><tr><th scope="col">Date</th><th scope="col">Reports</th><th scope="col">Estimated weight</th></tr></thead>
+                            <tbody>{% for day in daily_activity %}<tr><th scope="row">{{ day.day|date:'M j, Y' }}</th><td>{{ day.report_count }}</td><td>{{ day.estimated_kg|floatformat:2 }} kg</td></tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                {% else %}<p class="empty-state">No waste reports yet.</p>{% endif %}
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="collections-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Collections</p><h2 id="collections-heading">Collection operations</h2></div><p class="dashboard-summary">Completion rate: <strong>{{ collection_completion_rate }}%</strong> · {{ total_collection_requests }} requests in range</p></div>
+        <div class="dashboard-status-grid">
+            {% for row in collection_status_rows %}<article class="dashboard-status-card"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="wallet-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Wallet & rewards</p><h2 id="wallet-heading">Token and reward activity</h2></div></div>
+        <div class="dashboard-panels">
+            <article class="dashboard-panel">
+                <h3>Token ledger</h3>
+                <dl class="dashboard-metrics-list">
+                    <div><dt>Tokens issued</dt><dd>{{ tokens_issued|floatformat:2 }}</dd></div>
+                    <div><dt>Tokens redeemed</dt><dd>{{ tokens_redeemed|floatformat:2 }}</dd></div>
+                    <div><dt>Tokens requested for cash-out</dt><dd>{{ tokens_requested_for_cashout|floatformat:2 }}</dd></div>
+                    <div><dt>Net adjustments</dt><dd>{{ token_adjustments|floatformat:2 }}</dd></div>
+                </dl>
+                <p class="dashboard-help">All figures come from wallet transactions in the selected date range.</p>
+            </article>
+            <article class="dashboard-panel">
+                <h3>Reward redemptions</h3>
+                <div class="dashboard-status-grid dashboard-status-grid-compact">
+                    {% for row in redemption_status_rows %}<article class="dashboard-status-card"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
+                </div>
+                <h4>Most redeemed rewards</h4>
+                {% if most_redeemed %}<ol class="dashboard-ranked-list">{% for reward in most_redeemed %}<li><span>{{ reward.reward__name }}</span><strong>{{ reward.redemption_count }}</strong></li>{% endfor %}</ol>{% else %}<p class="empty-state">No reward redemptions yet.</p>{% endif %}
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="cashout-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Cash-outs</p><h2 id="cashout-heading">Manual payout queue</h2></div><p class="dashboard-summary">{{ cashout_token_total|floatformat:2 }} tokens · {{ cashout_money_total|floatformat:2 }} requested in range</p></div>
+        <div class="dashboard-status-grid">
+            {% for row in cashout_status_rows %}<article class="dashboard-status-card{% if row.label == 'Pending' %} dashboard-status-card-highlight{% endif %}"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
+        </div>
+        <p class="dashboard-help">Cash-out requests are summarized without customer or payout destination details.</p>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="marketplace-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Marketplace</p><h2 id="marketplace-heading">Materials and buyer requests</h2></div></div>
+        <div class="dashboard-panels">
+            <article class="dashboard-panel">
+                <h3>Available inventory</h3>
+                {% if marketplace_inventory %}<ul class="dashboard-ranked-list">{% for stock in marketplace_inventory %}<li><span>{{ stock.unit_label }}</span><strong>{{ stock.quantity|floatformat:2 }}</strong></li>{% endfor %}</ul>{% else %}<p class="empty-state">No active marketplace materials yet.</p>{% endif %}
+            </article>
+            <article class="dashboard-panel">
+                <h3>Buyer requests</h3>
+                <div class="dashboard-status-grid dashboard-status-grid-compact">
+                    {% for row in buyer_status_rows %}<article class="dashboard-status-card"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
+                </div>
+                {% if total_buyer_requests %}<p class="dashboard-help">Request counts use {{ period_label|lower }}. Buyer contact details are only available in Django Admin.</p>{% else %}<p class="empty-state">No marketplace requests yet.</p>{% endif %}
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="activity-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Recent activity</p><h2 id="activity-heading">Latest operations</h2></div></div>
+        {% if recent_activity %}
+            <div class="dashboard-table-wrap"><table class="dashboard-table">
+                <caption>Recent activity for {{ period_label|lower }}</caption>
+                <thead><tr><th scope="col">Activity</th><th scope="col">Status</th><th scope="col">Details</th><th scope="col">Date</th></tr></thead>
+                <tbody>{% for activity in recent_activity %}<tr><th scope="row">{{ activity.title }}</th><td>{{ activity.status }}</td><td>{{ activity.detail }}</td><td><time datetime="{{ activity.date|date:'c' }}">{{ activity.date|date:'M j, Y H:i' }}</time></td></tr>{% endfor %}</tbody>
+            </table></div>
+        {% else %}<p class="empty-state">No operational activity yet.</p>{% endif %}
+    </section>
+</section>
 {% endblock %}

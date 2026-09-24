@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block title %}{% if title %}{{ title }} | {% endif %}{{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+<div id="content-main">
+    <p class="takapay-admin-dashboard-link"><a href="{% url 'admin_analytics_dashboard' %}">Open TakaPay Analytics Dashboard</a></p>
+    {% if app_list %}
+        {% for app in app_list %}{% include "admin/app_list.html" with app=app show_changelinks=True %}{% endfor %}
+    {% else %}
+        <p>{% translate "You don't have permission to view or edit anything." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

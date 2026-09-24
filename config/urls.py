@@ -7,6 +7,7 @@ from . import views
 from apps.accounts import views as account_views
 
 urlpatterns = [
+    path("admin/dashboard/", account_views.admin_analytics_dashboard, name="admin_analytics_dashboard"),
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("marketplace/", include("apps.marketplace.urls")),

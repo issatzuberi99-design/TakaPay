@@ -100,7 +100,7 @@ class BuyerRequestTests(MarketplaceTestMixin, TestCase):
         self.assertRedirects(response, reverse("buyer_request_confirmation", args=[request_record.pk]))
         confirmation = self.client.get(response.url)
         self.assertEqual(confirmation.status_code, 200)
-        self.assertContains(confirmation, "TP-000001")
+        self.assertContains(confirmation, f"TP-{request_record.pk:06d}")
         self.assertContains(confirmation, request_record.material_name)
         self.assertContains(confirmation, "100.00")
         self.assertContains(confirmation, "Pending")
