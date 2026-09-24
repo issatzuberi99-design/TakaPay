@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 
 from apps.waste.models import WasteReport
 
@@ -29,6 +30,13 @@ class CollectionRequest(models.Model):
         choices=Status.choices,
         default=Status.AVAILABLE,
     )
+    actual_piece_count = models.DecimalField(
+        max_digits=10,
+        decimal_places=0,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
     actual_weight = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -50,6 +58,12 @@ class CollectionRequest(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                check=Q(actual_piece_count__isnull=True) | Q(actual_piece_count__gte=1),
+                name="collection_piece_count_must_be_positive",
+            ),
+        ]
 
     def __str__(self):
         return f"Collection request for {self.waste_report}"

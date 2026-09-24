@@ -9,6 +9,11 @@ from apps.waste.models import WasteCategory
 
 
 class MarketplaceMaterial(models.Model):
+    class PreparationStatus(models.TextChoices):
+        READY = "ready", "Ready for preparation"
+        DRAFT = "draft", "Draft"
+        PUBLISHED = "published", "Published"
+
     class Unit(models.TextChoices):
         KILOGRAM = "kg", "Kilograms"
         TON = "ton", "Tonnes"
@@ -39,6 +44,27 @@ class MarketplaceMaterial(models.Model):
         validators=[MinValueValidator(Decimal("0.00"))],
     )
     active = models.BooleanField(default=True)
+    preparation_status = models.CharField(
+        max_length=20,
+        choices=PreparationStatus.choices,
+        default=PreparationStatus.PUBLISHED,
+        db_index=True,
+    )
+    source_collection = models.OneToOneField(
+        "collections.CollectionRequest",
+        on_delete=models.PROTECT,
+        related_name="marketplace_material",
+        null=True,
+        blank=True,
+    )
+    prepared_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="prepared_marketplace_materials",
+        null=True,
+        blank=True,
+    )
+    published_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

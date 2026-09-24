@@ -9,7 +9,7 @@
             {% for report in reports %}
                 <a class="report-item" href="{% url 'waste_report_detail' report.id %}">
                     <span><strong>{{ report.category.name }}</strong><small>{{ report.created_at|date:"M j, Y" }}</small></span>
-                    <span><strong>{{ report.estimated_weight }} {{ report.get_weight_unit_display }}</strong><small>{% if report.latitude and report.longitude %}Location captured{% else %}No location{% endif %}</small></span>
+                    <span><strong>{% if report.category.reward_unit == "piece" %}{{ report.estimated_piece_count }} pieces{% else %}{{ report.estimated_weight }} {{ report.get_weight_unit_display }}{% endif %}</strong><small>{% if report.latitude and report.longitude %}Location captured{% else %}No location{% endif %}</small></span>
                     <span class="report-status">
                         {% if report.collection_request %}
                             {{ report.collection_request.get_status_display }}

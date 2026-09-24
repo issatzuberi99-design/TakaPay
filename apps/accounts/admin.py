@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.db import transaction
 
 from .models import CollectorProfile, User
+from .services import set_collector_verification
 
 
 @admin.register(User)
@@ -37,8 +37,6 @@ class CollectorProfileAdmin(admin.ModelAdmin):
     def user_email(self, obj):
         return obj.user.email
 
-    @transaction.atomic
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        obj.user.collector_verification_status = obj.verification_status
-        obj.user.save(update_fields=("collector_verification_status",))
+        set_collector_verification(obj.pk, obj.verification_status)

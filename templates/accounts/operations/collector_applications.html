@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Collector Applications | TakaPay{% endblock %}
+{% block content %}<section class="admin-dashboard">
+    <p class="eyebrow">TakaPay Admin · Operations</p><h1>Collector Applications</h1>
+    <p class="dashboard-intro">Review applicant details and set their current verification status.</p>
+    <form method="get" class="dashboard-filter"><label for="status">Status</label><select id="status" name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button class="button button-primary">Filter</button></form>
+    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Applicant</th><th>Email / phone</th><th>ID reference</th><th>Address</th><th>Status</th><th>Applied</th><th></th></tr></thead><tbody>
+    {% for profile in profiles %}<tr><th>{{ profile.user.get_full_name|default:profile.user.username }}</th><td>{{ profile.user.email }}<br>{{ profile.user.phone_number }}</td><td>{{ profile.identification_reference }}</td><td>{{ profile.address|linebreaksbr }}</td><td>{{ profile.get_verification_status_display }}</td><td>{{ profile.created_at|date:"M j, Y H:i" }}</td><td><a href="{% url 'collector_application_detail' profile.pk %}">Inspect</a></td></tr>{% empty %}<tr><td colspan="7">No collector applications found.</td></tr>{% endfor %}
+    </tbody></table></div><p><a href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a></p>
+</section>{% endblock %}

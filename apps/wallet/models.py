@@ -32,6 +32,15 @@ class WalletTransaction(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     description = models.CharField(max_length=255)
     reference = models.CharField(max_length=100, blank=True, db_index=True)
+    collection_reward_unit = models.CharField(
+        max_length=10,
+        choices=(("kg", "Kilogram (KG)"), ("piece", "Piece")),
+        null=True,
+        blank=True,
+    )
+    collection_reward_quantity = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
+    collection_reward_rate = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    collection_reward_material = models.CharField(max_length=150, blank=True)
     collection = models.OneToOneField(
         "collections.CollectionRequest",
         on_delete=models.SET_NULL,
@@ -57,6 +66,17 @@ class WalletTransaction(models.Model):
         ]
 
     def clean(self):
+        if self.transaction_type == self.TransactionType.COLLECTION_REWARD:
+            snapshot_fields = (
+                self.collection_reward_unit,
+                self.collection_reward_quantity,
+                self.collection_reward_rate,
+                self.collection_reward_material,
+            )
+            if any(snapshot_fields) and not all(snapshot_fields):
+                raise ValidationError("Collection reward snapshots must include unit, quantity, rate, and material.")
+        elif any((self.collection_reward_unit, self.collection_reward_quantity, self.collection_reward_rate, self.collection_reward_material)):
+            raise ValidationError("Only collection reward transactions can store collection reward snapshots.")
         if self.transaction_type in {
             self.TransactionType.REWARD_REDEMPTION,
             self.TransactionType.CASHOUT,

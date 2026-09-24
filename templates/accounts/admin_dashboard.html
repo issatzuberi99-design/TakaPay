@@ -9,10 +9,21 @@
             <p class="dashboard-intro">A current view of recycling, collections, rewards, cash-outs, and the public marketplace.</p>
         </div>
         <div class="dashboard-actions">
-            <a class="button button-secondary" href="{% url 'admin:index' %}">Open Django Admin</a>
-            <a class="button button-secondary" href="{% url 'marketplace' %}">View Marketplace</a>
+            <a class="button button-secondary" href="{% url 'admin:index' %}">Technical Django Admin</a>
+            <a class="button button-secondary" href="{% url 'marketplace' %}">View Recyclable Materials Marketplace</a>
         </div>
     </header>
+
+    <section class="dashboard-section" aria-labelledby="operations-heading">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Operations</p><h2 id="operations-heading">Business controls</h2></div></div>
+        <div class="dashboard-panels">
+            <article class="dashboard-panel"><h3>Waste and collections</h3><p>Review submitted reports, collection assignments, and collector verification.</p><a href="{% url 'collector_applications' %}">Collector Applications</a> · <a href="{% url 'admin_collection_requests' %}">Collection Requests</a> · <a href="{% url 'admin_collection_history' %}">Collection History</a></article>
+            <article class="dashboard-panel"><h3>Token Rates</h3><p>Set category reward unit, token rate, and active status.</p><a class="button button-primary" href="{% url 'admin_token_rates' %}">Manage Token Rates</a></article>
+            <article class="dashboard-panel"><h3>Finance</h3><p>Inspect wallet ledger and process cash-outs.</p><a href="{% url 'admin_wallet_activity' %}">Wallet Activity</a> · <a href="{% url 'admin_cashout_requests' %}">Cash-out Requests</a></article>
+            <article class="dashboard-panel"><h3>Marketplace Preparation</h3><p>Review collected material, save drafts, and explicitly publish buyer listings.</p><a class="button button-primary" href="{% url 'marketplace_preparation' %}">Preparation Queue</a> · <a href="{% url 'admin_published_materials' %}">Published Materials</a> · <a href="{% url 'admin_buyer_requests' %}">Buyer Requests</a></article>
+            <article class="dashboard-panel"><h3>Rewards Store</h3><p>Manage customer token rewards and review redemption activity. This store is separate from the public materials marketplace.</p><a class="button button-primary" href="{% url 'admin_rewards' %}">Manage Rewards</a> · <a href="{% url 'admin_redemptions' %}">Redemptions</a></article>
+        </div>
+    </section>
 
     <form class="dashboard-filter" method="get" aria-label="Filter dashboard date range">
         <label for="period">Date range</label>
@@ -31,13 +42,13 @@
         </div>
         <div class="dashboard-kpis">
             <article class="dashboard-kpi"><span>Total waste reports</span><strong>{{ total_waste_reports }}</strong><small>{{ period_label }}</small></article>
-            <article class="dashboard-kpi"><span>Estimated waste</span><strong>{{ estimated_waste_kg|floatformat:2 }} kg</strong><small>Converted to kilograms</small></article>
-            <article class="dashboard-kpi"><span>Collected actual waste</span><strong>{{ collected_waste_kg|floatformat:2 }} kg</strong><small>Completed collections</small></article>
+            <article class="dashboard-kpi"><span>Estimated waste</span><strong>{{ estimated_waste_kg|floatformat:2 }} kg · {{ estimated_waste_pieces|floatformat:0 }} pieces</strong><small>Totals shown separately by unit</small></article>
+            <article class="dashboard-kpi"><span>Collected actual waste · verified quantity</span><strong>{{ collected_waste_kg|floatformat:2 }} kg · {{ collected_waste_pieces|floatformat:0 }} pieces</strong><small>Completed collections, units not combined</small></article>
             <article class="dashboard-kpi"><span>Verified waste</span><strong>{{ verified_waste_kg|floatformat:2 }} kg</strong><small>Verified reports</small></article>
             <article class="dashboard-kpi"><span>Approved collectors</span><strong>{{ approved_collectors }}</strong><small>{{ collectors_with_completions }} with completions in range</small></article>
             <article class="dashboard-kpi"><span>Available collections</span><strong>{{ available_collections }}</strong><small>Current open queue</small></article>
             <article class="dashboard-kpi"><span>Completed collections</span><strong>{{ completed_collections }}</strong><small>{{ period_label }}</small></article>
-            <article class="dashboard-kpi"><span>Tokens issued</span><strong>{{ tokens_issued|floatformat:2 }}</strong><small>Collection reward ledger entries</small></article>
+            <article class="dashboard-kpi"><span>Tokens issued</span><strong>{{ tokens_issued|floatformat:2 }}</strong><small>{{ tokens_issued_for_kg|floatformat:2 }} KG-based · {{ tokens_issued_for_pieces|floatformat:2 }} PIECE-based</small></article>
             <article class="dashboard-kpi"><span>Tokens redeemed</span><strong>{{ tokens_redeemed|floatformat:2 }}</strong><small>Reward redemption ledger entries</small></article>
             <article class="dashboard-kpi dashboard-kpi-highlight"><span>Pending cash-outs</span><strong>{{ pending_cashouts }}</strong><small>Current queue</small></article>
             <article class="dashboard-kpi"><span>Completed cash-outs</span><strong>{{ cashout_counts.completed }}</strong><small>Requests from {{ period_label|lower }}</small></article>
@@ -67,8 +78,8 @@
                     <div class="dashboard-table-wrap">
                         <table class="dashboard-table">
                             <caption>Waste category totals for {{ period_label|lower }}</caption>
-                            <thead><tr><th scope="col">Category</th><th scope="col">Reports</th><th scope="col">Estimated</th><th scope="col">Collected actual</th><th scope="col">Verified reports</th></tr></thead>
-                            <tbody>{% for category in category_activity %}<tr><th scope="row">{{ category.name }}</th><td>{{ category.report_count }}</td><td>{{ category.estimated_kg|floatformat:2 }} kg</td><td>{{ category.collected_kg|floatformat:2 }} kg</td><td>{{ category.verified_count }}</td></tr>{% endfor %}</tbody>
+                            <thead><tr><th scope="col">Category</th><th scope="col">Reports</th><th scope="col">Estimated kg</th><th scope="col">Estimated pieces</th><th scope="col">Collected kg</th><th scope="col">Collected pieces</th><th scope="col">Verified reports</th></tr></thead>
+                            <tbody>{% for category in category_activity %}<tr><th scope="row">{{ category.name }}</th><td>{{ category.report_count }}</td><td>{{ category.estimated_kg|floatformat:2 }}</td><td>{{ category.estimated_pieces|floatformat:0 }}</td><td>{{ category.collected_kg|floatformat:2 }}</td><td>{{ category.collected_pieces|floatformat:0 }}</td><td>{{ category.verified_count }}</td></tr>{% endfor %}</tbody>
                         </table>
                     </div>
                 {% else %}<p class="empty-state">No waste reports yet.</p>{% endif %}
@@ -149,7 +160,7 @@
                 <div class="dashboard-status-grid dashboard-status-grid-compact">
                     {% for row in buyer_status_rows %}<article class="dashboard-status-card"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
                 </div>
-                {% if total_buyer_requests %}<p class="dashboard-help">Request counts use {{ period_label|lower }}. Buyer contact details are only available in Django Admin.</p>{% else %}<p class="empty-state">No marketplace requests yet.</p>{% endif %}
+                {% if total_buyer_requests %}<p class="dashboard-help">Request counts use {{ period_label|lower }}. Review buyer contact details and manage request transitions from the operations queue.</p>{% else %}<p class="empty-state">No marketplace requests yet.</p>{% endif %}
             </article>
         </div>
     </section>

@@ -8,7 +8,7 @@
     </div>
 
     <div class="report-list-block">
-        <h2>Available Collections</h2>
+        <h2 id="available-collections">Available Collections</h2>
         {% if available_collections %}
             <div class="report-list">
                 {% for collection in available_collections %}
@@ -18,7 +18,7 @@
                             <small>{{ collection.waste_report.created_at|date:"M j, Y" }}</small>
                         </span>
                         <span>
-                            <strong>{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}</strong>
+                            <strong>{% if collection.waste_report.category.reward_unit == "piece" %}{{ collection.waste_report.estimated_piece_count }} pieces{% else %}{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}{% endif %}</strong>
                             <small>{{ collection.waste_report.description|truncatechars:80 }}</small>
                         </span>
                         <span class="report-status">{{ collection.get_status_display }}</span>
@@ -38,7 +38,7 @@
     </div>
 
     <div class="report-list-block">
-        <h2>My Collections</h2>
+        <h2 id="my-collections">My Collections</h2>
         {% if my_collections %}
             <div class="report-list">
                 {% for collection in my_collections %}
@@ -48,7 +48,7 @@
                             <small>Accepted {{ collection.accepted_at|date:"M j, Y"|default:"--" }}</small>
                         </span>
                         <span>
-                            <strong>{{ collection.actual_weight|default:"--" }} {{ collection.weight_unit|default:collection.waste_report.get_weight_unit_display }}</strong>
+                            <strong>{% if collection.actual_piece_count %}{{ collection.actual_piece_count }} pieces{% else %}{{ collection.actual_weight|default:"--" }} {{ collection.weight_unit|default:collection.waste_report.get_weight_unit_display }}{% endif %}</strong>
                             <small>{{ collection.get_status_display }}</small>
                         </span>
                         <span class="report-status">{{ collection.get_status_display }}</span>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Token Rates | TakaPay Admin{% endblock %}
+{% block content %}
+<section class="admin-dashboard">
+    <p class="eyebrow">TakaPay Admin · Operations</p><h1>Token Rates</h1>
+    <p class="dashboard-intro">Set the token rate and measurement unit applied to verified collected material.</p>
+    <form method="post" class="dashboard-panel">{% csrf_token %}{{ formset.management_form }}
+        {% if formset.non_form_errors %}<div class="form-errors">{{ formset.non_form_errors }}</div>{% endif %}
+        <div class="dashboard-table-wrap"><table class="dashboard-table">
+            <thead><tr><th>Material</th><th>Reward Unit</th><th>Token Rate (Tokens per selected unit)</th><th>Status</th><th>Updated</th></tr></thead>
+            <tbody>{% for form in formset %}<tr><th>{{ form.instance.name }}{{ form.id }}{% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}</th><td>{{ form.reward_unit }}</td><td>{{ form.token_rate }}</td><td>{{ form.active }}</td><td>{{ form.instance.updated_at|date:"M j, Y H:i" }}</td></tr>{% empty %}<tr><td colspan="5">No waste categories have been configured.</td></tr>{% endfor %}</tbody>
+        </table></div>
+        <button class="button button-primary" type="submit">Save token rates</button>
+        <a class="button button-secondary" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+    </form>
+</section>
+{% endblock %}

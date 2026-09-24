@@ -6,7 +6,11 @@ from .models import BuyerRequest, MarketplaceMaterial
 
 
 def available_materials():
-    return MarketplaceMaterial.objects.filter(active=True, available_quantity__gt=0).select_related("category")
+    return MarketplaceMaterial.objects.filter(
+        active=True,
+        preparation_status=MarketplaceMaterial.PreparationStatus.PUBLISHED,
+        available_quantity__gt=0,
+    ).select_related("category")
 
 
 def marketplace_list(request):

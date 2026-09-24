@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Reward Redemptions | TakaPay Admin{% endblock %}
+{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Rewards Store</p><h1>Redemption Activity</h1>
+    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Date</th><th>Customer</th><th>Reward</th><th>Tokens</th><th>Status</th></tr></thead>
+    <tbody>{% for redemption in redemptions %}<tr><td>{{ redemption.created_at|date:"M j, Y H:i" }}</td><th>{{ redemption.customer.username }}</th><td>{{ redemption.reward.name }}</td><td>{{ redemption.token_amount }}</td><td>{{ redemption.get_status_display }}</td></tr>{% empty %}<tr><td colspan="5">No reward redemptions yet.</td></tr>{% endfor %}</tbody></table></div>
+</section>{% endblock %}

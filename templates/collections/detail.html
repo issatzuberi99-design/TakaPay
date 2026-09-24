@@ -8,7 +8,13 @@
 
     <dl class="report-details">
         <dt>Status</dt><dd>{{ collection.get_status_display }}</dd>
-        <dt>Estimated weight</dt><dd>{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}</dd>
+        {% if collection.waste_report.category.reward_unit == "piece" %}
+            <dt>Estimated quantity</dt><dd>{{ collection.waste_report.estimated_piece_count }} pieces</dd>
+        {% else %}
+            <dt>Estimated weight</dt><dd>{{ collection.waste_report.estimated_weight }} {{ collection.waste_report.get_weight_unit_display }}</dd>
+        {% endif %}
+        {% if collection.actual_piece_count %}<dt>Verified quantity</dt><dd>{{ collection.actual_piece_count }} pieces</dd>
+        {% elif collection.actual_weight %}<dt>Verified weight</dt><dd>{{ collection.actual_weight }} {{ collection.get_weight_unit_display }}</dd>{% endif %}
         <dt>Customer</dt><dd>{{ collection.waste_report.customer.username }}</dd>
         <dt>Latitude</dt><dd>{{ collection.waste_report.latitude }}</dd>
         <dt>Longitude</dt><dd>{{ collection.waste_report.longitude }}</dd>

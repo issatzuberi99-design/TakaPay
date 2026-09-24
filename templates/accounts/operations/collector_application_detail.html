@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Collector Application | TakaPay{% endblock %}
+{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Collector Applications</p><h1>{{ profile.user.get_full_name|default:profile.user.username }}</h1>
+    <dl class="dashboard-metrics-list"><div><dt>Username</dt><dd>{{ profile.user.username }}</dd></div><div><dt>Email</dt><dd>{{ profile.user.email|default:"—" }}</dd></div><div><dt>Phone</dt><dd>{{ profile.user.phone_number|default:"—" }}</dd></div><div><dt>Identification reference</dt><dd>{{ profile.identification_reference }}</dd></div><div><dt>Address</dt><dd>{{ profile.address|linebreaksbr }}</dd></div><div><dt>Status</dt><dd>{{ profile.get_verification_status_display }}</dd></div><div><dt>Applied</dt><dd>{{ profile.created_at|date:"M j, Y H:i" }}</dd></div></dl>
+    <form method="post" class="dashboard-actions">{% csrf_token %}<button class="button button-primary" name="status" value="approved">Approve collector</button><button class="button button-secondary" name="status" value="rejected">Reject application</button><a class="button button-secondary" href="{% url 'collector_applications' %}">Back to applications</a></form>
+</section>{% endblock %}

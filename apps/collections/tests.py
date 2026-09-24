@@ -14,7 +14,7 @@ from .models import CollectionRequest
 
 class CollectionRequestTests(TestCase):
     def setUp(self):
-        self.category = WasteCategory.objects.create(name="Plastic", active=True)
+        self.category = WasteCategory.objects.create(name="Plastic", active=True, token_rate=Decimal("10.00"))
         self.customer = User.objects.create_user(username="customer", password="Strong-pass-123!")
         self.approved_collector = User.objects.create_user(
             username="approved_collector",

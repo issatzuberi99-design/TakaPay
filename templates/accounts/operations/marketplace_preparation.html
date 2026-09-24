@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Marketplace Preparation | TakaPay Admin{% endblock %}
+{% block content %}
+<section class="admin-dashboard">
+    <p class="eyebrow">TakaPay Admin · Marketplace</p><h1>Marketplace Preparation</h1>
+    <p class="dashboard-intro">Collected materials stay private until an administrator prepares and publishes them.</p>
+    <div class="dashboard-table-wrap"><table class="dashboard-table">
+        <thead><tr><th>Material</th><th>Source</th><th>Collected quantity</th><th>Unit</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody>{% for material in materials %}<tr>
+            <th>{{ material.name }}</th><td>Collection #{{ material.source_collection_id }}</td>
+            <td>{{ material.available_quantity }}</td><td>{{ material.get_unit_display }}</td>
+            <td>{{ material.get_preparation_status_display }}</td><td>{{ material.created_at|date:"M j, Y" }}</td>
+            <td><a class="button button-secondary" href="{% url 'marketplace_preparation_edit' material.id %}">View / Edit</a></td>
+        </tr>{% empty %}<tr><td colspan="7">No completed collections are waiting for preparation.</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <p><a class="button button-secondary" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a></p>
+</section>
+{% endblock %}

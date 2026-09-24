@@ -51,6 +51,19 @@ class WasteReportingTests(TestCase):
         self.assertEqual(report.customer, self.customer)
         self.assertEqual(report.status, WasteReport.Status.SUBMITTED)
 
+    def test_piece_category_accepts_piece_estimate_without_kg_estimate(self):
+        self.category.reward_unit = WasteCategory.RewardUnit.PIECE
+        self.category.save(update_fields=["reward_unit", "updated_at"])
+        self.client.force_login(self.customer)
+        data = {key: value for key, value in self.report_data.items() if key not in {"estimated_weight", "weight_unit"}}
+        data["estimated_piece_count"] = "75"
+        response = self.client.post(reverse("waste_report_create"), data)
+        self.assertEqual(response.status_code, 302)
+        report = WasteReport.objects.get()
+        self.assertRedirects(response, reverse("waste_report_detail", args=[report.pk]))
+        self.assertIsNone(report.estimated_weight)
+        self.assertEqual(report.estimated_piece_count, Decimal("75"))
+
     def test_customer_is_automatically_assigned_to_report(self):
         self.client.force_login(self.customer)
         self.client.post(reverse("waste_report_create"), self.report_data)

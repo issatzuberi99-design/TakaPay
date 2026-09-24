@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Prepare Material | TakaPay Admin{% endblock %}
+{% block content %}
+<section class="form-page"><p class="eyebrow">TakaPay Admin · Marketplace Preparation</p><h1>Prepare {{ material.name }}</h1>
+    <p>Source collection #{{ material.source_collection_id }} · verified {% if material.source_collection.actual_piece_count %}quantity {{ material.source_collection.actual_piece_count }} pieces{% else %}weight {{ material.source_collection.actual_weight }} {{ material.source_collection.get_weight_unit_display }}{% endif %}. Publishing makes this listing public.</p>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}
+        <button class="button button-primary" type="submit">Save Draft / Publish</button>
+        <a class="button button-secondary" href="{% url 'marketplace_preparation' %}">Cancel</a>
+    </form>
+</section>
+{% endblock %}

@@ -70,6 +70,7 @@ def dashboard_context(request):
     report_totals = reports.aggregate(
         count=Count("id"),
         estimated_kg=Coalesce(Sum(report_weight), Value(ZERO), output_field=weight_field),
+        estimated_pieces=Coalesce(Sum("estimated_piece_count"), Value(ZERO), output_field=weight_field),
     )
     verified_reports = reports.filter(status=WasteReport.Status.VERIFIED)
     verified_weight = verified_reports.aggregate(
@@ -82,6 +83,7 @@ def dashboard_context(request):
     )
     collection_weight_total = completed_collections.aggregate(
         total=Coalesce(Sum(collection_weight), Value(ZERO), output_field=weight_field),
+        pieces=Coalesce(Sum("actual_piece_count"), Value(ZERO), output_field=weight_field),
         count=Count("id"),
         collectors=Count("collector", distinct=True),
     )
@@ -117,6 +119,18 @@ def dashboard_context(request):
         adjustments=Coalesce(
             Sum("amount", filter=Q(transaction_type=WalletTransaction.TransactionType.ADJUSTMENT)),
             Value(ZERO), output_field=weight_field,
+        ),
+        kg_rewards=Coalesce(
+            Sum("amount", filter=Q(
+                transaction_type=WalletTransaction.TransactionType.COLLECTION_REWARD,
+                collection_reward_unit="kg",
+            )), Value(ZERO), output_field=weight_field,
+        ),
+        piece_rewards=Coalesce(
+            Sum("amount", filter=Q(
+                transaction_type=WalletTransaction.TransactionType.COLLECTION_REWARD,
+                collection_reward_unit="piece",
+            )), Value(ZERO), output_field=weight_field,
         ),
     )
 
@@ -172,6 +186,17 @@ def dashboard_context(request):
                 Sum(
                     weight_in_kilograms("reports__estimated_weight", "reports__weight_unit"),
                     filter=report_period_filter,
+                ),
+                Value(ZERO), output_field=weight_field,
+            ),
+            estimated_pieces=Coalesce(
+                Sum("reports__estimated_piece_count", filter=report_period_filter),
+                Value(ZERO), output_field=weight_field,
+            ),
+            collected_pieces=Coalesce(
+                Sum(
+                    "reports__collection_request__actual_piece_count",
+                    filter=Q(reports__collection_request__status=CollectionRequest.Status.COMPLETED) & completed_period_filter,
                 ),
                 Value(ZERO), output_field=weight_field,
             ),
@@ -241,7 +266,11 @@ def dashboard_context(request):
             "date": collection.completed_at,
             "title": f"Collection completed · {collection.waste_report.category.name}",
             "status": collection.get_status_display(),
-            "detail": f"{collection.actual_weight or ZERO} {collection.get_weight_unit_display()} collected",
+            "detail": (
+                f"{collection.actual_piece_count} pieces collected"
+                if collection.actual_piece_count is not None
+                else f"{collection.actual_weight or ZERO} {collection.get_weight_unit_display()} collected"
+            ),
         })
     for cashout in cashout_scope.order_by("-requested_at")[:5]:
         recent_activity.append({
@@ -283,7 +312,9 @@ def dashboard_context(request):
         "today": today,
         "total_waste_reports": report_totals["count"],
         "estimated_waste_kg": report_totals["estimated_kg"],
+        "estimated_waste_pieces": report_totals["estimated_pieces"],
         "collected_waste_kg": collection_weight_total["total"],
+        "collected_waste_pieces": collection_weight_total["pieces"],
         "verified_waste_kg": verified_weight,
         "approved_collectors": approved_collectors,
         "collectors_with_completions": collection_weight_total["collectors"],
@@ -296,6 +327,8 @@ def dashboard_context(request):
         "total_collection_requests": total_collection_requests,
         "collection_completion_rate": completion_rate,
         "tokens_issued": token_transactions["issued"],
+        "tokens_issued_for_kg": token_transactions["kg_rewards"],
+        "tokens_issued_for_pieces": token_transactions["piece_rewards"],
         "tokens_redeemed": abs(token_transactions["redeemed"]),
         "tokens_requested_for_cashout": abs(token_transactions["cashout"]),
         "token_adjustments": token_transactions["adjustments"],

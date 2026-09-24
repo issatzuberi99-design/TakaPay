@@ -18,12 +18,16 @@
         <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
         {{ form.description }}
         {{ form.description.errors }}
-        <label for="{{ form.estimated_weight.id_for_label }}">{{ form.estimated_weight.label }}</label>
-        {{ form.estimated_weight }}
-        {{ form.estimated_weight.errors }}
-        <label for="{{ form.weight_unit.id_for_label }}">{{ form.weight_unit.label }}</label>
-        {{ form.weight_unit }}
-        {{ form.weight_unit.errors }}
+        <div data-estimate-unit="kg">
+            <label for="{{ form.estimated_weight.id_for_label }}">Estimated Weight</label>
+            {{ form.estimated_weight }}{{ form.estimated_weight.errors }}
+            <label for="{{ form.weight_unit.id_for_label }}">Weight unit</label>
+            {{ form.weight_unit }}{{ form.weight_unit.errors }}
+        </div>
+        <div data-estimate-unit="piece">
+            <label for="{{ form.estimated_piece_count.id_for_label }}">Estimated Quantity (pieces)</label>
+            {{ form.estimated_piece_count }}{{ form.estimated_piece_count.errors }}
+        </div>
 
         <p class="form-step">3. Capture location</p>
         <p class="location-help">GPS is captured only when you press the button. TakaPay does not continuously track you.</p>
@@ -39,5 +43,23 @@
         <button class="button button-primary" type="submit">Submit waste report</button>
     </form>
 </section>
+{{ form.category_reward_units|json_script:"category-reward-units" }}
+<script>
+    (() => {
+        const category = document.getElementById("{{ form.category.id_for_label }}");
+        const rewardUnits = JSON.parse(document.getElementById("category-reward-units").textContent);
+        const groups = document.querySelectorAll("[data-estimate-unit]");
+        const updateEstimateFields = () => {
+            const unit = rewardUnits[category.value] || "kg";
+            groups.forEach((group) => {
+                const visible = group.dataset.estimateUnit === (unit === "piece" ? "piece" : "kg");
+                group.hidden = !visible;
+                group.querySelectorAll("input, select").forEach((field) => { field.disabled = !visible; });
+            });
+        };
+        category.addEventListener("change", updateEstimateFields);
+        updateEstimateFields();
+    })();
+</script>
 <script src="{% static 'js/waste_report.js' %}"></script>
 {% endblock %}

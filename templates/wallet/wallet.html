@@ -13,7 +13,7 @@
     </div>
     <div class="hero-actions">
         <a class="button button-primary" href="{% url 'cashout_create' %}">Cash Out</a>
-        <a class="button button-secondary" href="{% url 'reward_list' %}">Browse Rewards</a>
+        <a class="button button-secondary" href="{% url 'reward_list' %}">Browse Rewards Store</a>
         <a class="button button-secondary" href="{% url 'cashout_history' %}">Cash-out History</a>
     </div>
 
@@ -23,7 +23,7 @@
                 <div class="report-item">
                     <span>
                         <strong>{{ transaction.get_transaction_type_display }}</strong>
-                        <small>{{ transaction.description }}</small>
+                        <small>{{ transaction.description }}{% if transaction.collection_reward_unit %} · {{ transaction.collection_reward_quantity }} {{ transaction.get_collection_reward_unit_display }} × {{ transaction.collection_reward_rate }} per unit{% endif %}</small>
                     </span>
                     <span>
                         <strong class="{% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">

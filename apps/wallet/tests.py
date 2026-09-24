@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from apps.accounts.models import CollectorProfile, User
 from apps.collections.models import CollectionRequest
+from apps.marketplace.models import MarketplaceMaterial
 from apps.waste.models import WasteCategory, WasteReport
 
 from .models import Wallet, WalletTransaction
@@ -95,7 +96,7 @@ class WalletModelTests(TestCase):
         self.assertNotIn("buyer", User.Role.values)
 
     def test_token_rate_cannot_be_negative(self):
-        category = WasteCategory(name="Paper", active=True, token_rate_per_kg=Decimal("-1.00"))
+        category = WasteCategory(name="Paper", active=True, token_rate=Decimal("-1.00"))
         with self.assertRaises(Exception):
             category.full_clean()
 
@@ -140,7 +141,7 @@ class CollectionRewardTests(TestCase):
         self.category = WasteCategory.objects.create(
             name="Plastic",
             active=True,
-            token_rate_per_kg=Decimal("100.00"),
+            token_rate=Decimal("100.00"),
         )
         self.customer = User.objects.create_user(
             username="reward_customer",
@@ -191,9 +192,20 @@ class CollectionRewardTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.collection.reward_transaction.amount, Decimal("250.00"))
+        self.assertEqual(self.collection.reward_transaction.collection_reward_material, "Plastic")
+        self.assertEqual(self.collection.reward_transaction.collection_reward_unit, "kg")
+        self.assertEqual(self.collection.reward_transaction.collection_reward_quantity, Decimal("2.50000"))
+        self.assertEqual(self.collection.reward_transaction.collection_reward_rate, Decimal("100.00"))
         self.assertEqual(self.collection.reward_transaction.wallet, self.customer.wallet)
         self.assertEqual(self.customer.wallet.balance, Decimal("250.00"))
         self.assertEqual(self.collection.reward_transaction.transaction_type, WalletTransaction.TransactionType.COLLECTION_REWARD)
+        self.assertEqual(WalletTransaction.objects.filter(collection=self.collection).count(), 1)
+        self.assertEqual(self.collection.marketplace_material.available_quantity, Decimal("2.50"))
+        self.assertFalse(self.collection.marketplace_material.active)
+        self.assertEqual(self.collection.marketplace_material.preparation_status, "ready")
+        self.client.force_login(self.customer)
+        wallet_page = self.client.get(reverse("wallet"))
+        self.assertContains(wallet_page, "250.00")
 
     def test_second_completion_attempt_does_not_create_another_reward(self):
         self.collection.collector = self.collector
@@ -250,6 +262,133 @@ class CollectionRewardTests(TestCase):
         )
 
         self.assertEqual(self.customer.wallet.balance, Decimal("250.00"))
+        self.assertEqual(self.collection.reward_transaction.amount, Decimal("250.00"))
+        self.assertEqual(self.collection.reward_transaction.collection_reward_quantity, Decimal("2.50000"))
+        self.assertEqual(self.collection.reward_transaction.collection_reward_unit, "kg")
+
+    def test_updated_admin_rate_is_used_for_subsequent_reward(self):
+        admin = User.objects.create_user(username="rate_admin", password="Strong-pass-123!", role=User.Role.ADMIN)
+        self.client.force_login(admin)
+        rate_response = self.client.post(reverse("admin_token_rates"), {
+            "rates-TOTAL_FORMS": "1", "rates-INITIAL_FORMS": "1",
+            "rates-MIN_NUM_FORMS": "0", "rates-MAX_NUM_FORMS": "1000",
+            "rates-0-id": str(self.category.pk), "rates-0-reward_unit": "kg", "rates-0-token_rate": "12.35",
+        })
+        self.assertEqual(rate_response.status_code, 302)
+        self.client.force_login(self.collector)
+        self.collection.collector = self.collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        response = self.client.post(
+            reverse("collection_complete", args=[self.collection.pk]),
+            {"actual_weight": "2.50", "weight_unit": WasteReport.WeightUnit.KILOGRAMS,
+             "proof_photo": self._photo()},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.collection.reward_transaction.amount, Decimal("30.88"))
+        self.assertEqual(self.collection.reward_transaction.collection_reward_rate, Decimal("12.35"))
+        self.category.refresh_from_db()
+        self.category.token_rate = Decimal("50.00")
+        self.category.save(update_fields=["token_rate", "updated_at"])
+        self.assertEqual(self.collection.reward_transaction.collection_reward_rate, Decimal("12.35"))
+
+    def test_piece_reward_uses_verified_count_and_preserves_rate_snapshot(self):
+        self.category.reward_unit = WasteCategory.RewardUnit.PIECE
+        self.category.token_rate = Decimal("2.00")
+        self.category.save(update_fields=["reward_unit", "token_rate", "updated_at"])
+        self.report.estimated_weight = None
+        self.report.estimated_piece_count = Decimal("75")
+        self.report.save(update_fields=["estimated_weight", "estimated_piece_count", "updated_at"])
+        self.collection.collector = self.collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        self.client.force_login(self.collector)
+        form_page = self.client.get(reverse("collection_complete", args=[self.collection.pk]))
+        self.assertIn("actual_piece_count", form_page.context["form"].fields)
+        self.assertNotIn("actual_weight", form_page.context["form"].fields)
+        self.assertNotIn("weight_unit", form_page.context["form"].fields)
+        response = self.client.post(
+            reverse("collection_complete", args=[self.collection.pk]),
+            {"actual_piece_count": "50", "proof_photo": self._photo()},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.collection.refresh_from_db()
+        reward = WalletTransaction.objects.get(collection=self.collection)
+        self.assertEqual(self.collection.status, CollectionRequest.Status.COMPLETED)
+        self.assertEqual(reward.amount, Decimal("100.00"))
+        self.assertEqual(reward.collection_reward_unit, WasteCategory.RewardUnit.PIECE)
+        self.assertEqual(reward.collection_reward_quantity, Decimal("50.00000"))
+        self.assertEqual(reward.collection_reward_rate, Decimal("2.00"))
+        self.assertEqual(self.customer.wallet.balance, Decimal("100.00"))
+        self.assertEqual(self.collection.marketplace_material.available_quantity, Decimal("50.00000"))
+        self.assertEqual(self.collection.marketplace_material.unit, "piece")
+        self.category.token_rate = Decimal("3.00")
+        self.category.save(update_fields=["token_rate", "updated_at"])
+        reward.refresh_from_db()
+        self.assertEqual(reward.collection_reward_rate, Decimal("2.00"))
+        self.assertEqual(reward.amount, Decimal("100.00"))
+
+    def test_zero_negative_and_fractional_piece_quantities_are_rejected(self):
+        self.category.reward_unit = WasteCategory.RewardUnit.PIECE
+        self.category.save(update_fields=["reward_unit", "updated_at"])
+        for value in ("0", "-1", "1.5"):
+            with self.subTest(value=value):
+                report = WasteReport.objects.create(
+                    customer=self.customer, category=self.category, description=f"Pieces {value}",
+                    estimated_weight=None, estimated_piece_count=Decimal("10"),
+                    latitude=Decimal("-6.1659"), longitude=Decimal("39.2026"),
+                    location_accuracy=Decimal("15.00"),
+                )
+                collection = CollectionRequest.objects.create(
+                    waste_report=report, collector=self.collector, status=CollectionRequest.Status.ACCEPTED,
+                )
+                self.client.force_login(self.collector)
+                response = self.client.post(
+                    reverse("collection_complete", args=[collection.pk]),
+                    {"actual_piece_count": value, "proof_photo": self._photo()},
+                )
+                self.assertEqual(response.status_code, 200)
+                collection.refresh_from_db()
+                self.assertEqual(collection.status, CollectionRequest.Status.ACCEPTED)
+                self.assertFalse(WalletTransaction.objects.filter(collection=collection).exists())
+
+    def test_zero_reward_rate_prevents_completion_and_awards_nothing(self):
+        self.category.token_rate = Decimal("0.00")
+        self.category.save(update_fields=["token_rate", "updated_at"])
+        self.collection.collector = self.collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        self.client.force_login(self.collector)
+        photo = self._photo()
+        response = self.client.post(
+            reverse("collection_complete", args=[self.collection.pk]),
+            {"actual_weight": "2.50", "weight_unit": WasteReport.WeightUnit.KILOGRAMS, "proof_photo": photo},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.collection.refresh_from_db()
+        self.assertEqual(self.collection.status, CollectionRequest.Status.ACCEPTED)
+        self.assertFalse(WalletTransaction.objects.filter(collection=self.collection).exists())
+        self.assertFalse(MarketplaceMaterial.objects.filter(source_collection=self.collection).exists())
+        self.assertFalse(hasattr(self.collection, "marketplace_material"))
+
+    def test_collector_cannot_submit_reward_amount(self):
+        self.collection.collector = self.collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        self.client.force_login(self.collector)
+        response = self.client.post(
+            reverse("collection_complete", args=[self.collection.pk]),
+            {"actual_weight": "2.50", "weight_unit": WasteReport.WeightUnit.KILOGRAMS,
+             "proof_photo": self._photo(), "reward_amount": "999999.99", "amount": "999999.99"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.collection.reward_transaction.amount, Decimal("250.00"))
+
+    def _photo(self):
+        image = Image.new("RGB", (10, 10), color="green")
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        return SimpleUploadedFile("proof.png", buffer.getvalue(), content_type="image/png")
 
     def test_reward_creation_failure_rolls_back_collection_completion(self):
         self.collection.collector = self.collector
@@ -279,3 +418,4 @@ class CollectionRewardTests(TestCase):
         self.collection.refresh_from_db()
         self.assertEqual(self.collection.status, CollectionRequest.Status.ACCEPTED)
         self.assertFalse(WalletTransaction.objects.filter(collection=self.collection).exists())
+        self.assertFalse(MarketplaceMaterial.objects.filter(source_collection=self.collection).exists())

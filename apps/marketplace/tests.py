@@ -49,6 +49,13 @@ class MarketplacePublicTests(MarketplaceTestMixin, TestCase):
         self.assertEqual(self.client.get(reverse("marketplace_material_detail", args=[self.inactive_material.pk])).status_code, 404)
         self.assertEqual(self.client.get(reverse("marketplace_material_detail", args=[self.empty_material.pk])).status_code, 404)
 
+    def test_active_ready_or_draft_preparations_are_still_hidden(self):
+        ready = self.material(name="Ready but hidden", preparation_status=MarketplaceMaterial.PreparationStatus.READY)
+        draft = self.material(name="Draft but hidden", preparation_status=MarketplaceMaterial.PreparationStatus.DRAFT)
+        response = self.client.get(reverse("marketplace"))
+        self.assertNotContains(response, ready.name)
+        self.assertNotContains(response, draft.name)
+
     def test_material_image_is_optional(self):
         material = self.material(image="")
         self.assertFalse(material.image)
