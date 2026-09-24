@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "apps.rewards",
     "apps.marketplace",
     "apps.cashout",
+    "apps.economics",
 ]
 
 MIDDLEWARE = [

@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from apps.accounts.decorators import role_required
 from apps.accounts.models import User
 from apps.wallet.models import Wallet, WalletTransaction
+from apps.economics.models import EconomicSetting
 
 from .forms import CashOutRequestForm
 from .models import CashOutRate, CashOutRequest
@@ -23,7 +24,10 @@ def cashout_create(request):
                     wallet = Wallet.objects.select_for_update().get(user=request.user)
                     locked_rate = CashOutRate.objects.select_for_update().get(pk=rate.pk, active=True)
                     token_amount = form.cleaned_data["token_amount"]
-                    if wallet.balance < token_amount:
+                    minimum_tokens = EconomicSetting.current().customer_cashout_min_tokens
+                    if token_amount < minimum_tokens:
+                        form.add_error("token_amount", f"Cash-outs require at least {minimum_tokens} Tokens.")
+                    elif wallet.balance < token_amount:
                         form.add_error("token_amount", "You do not have enough TakaPay Tokens.")
                     else:
                         cashout = form.save(commit=False)

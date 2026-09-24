@@ -1,9 +1,11 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils import timezone
 
 from apps.marketplace.models import MarketplaceMaterial
 from apps.rewards.models import Reward
 from apps.waste.models import WasteCategory
+from apps.economics.models import CollectorBonus, EconomicPolicy, EconomicSetting, MaterialRate
 
 
 class WasteCategoryRateForm(forms.ModelForm):
@@ -53,3 +55,41 @@ class RewardOperationsForm(forms.ModelForm):
         model = Reward
         fields = ("name", "description", "image", "token_cost", "inventory", "active")
         widgets = {"description": forms.Textarea(attrs={"rows": 4})}
+
+
+class EconomicPolicyForm(forms.ModelForm):
+    class Meta:
+        model = EconomicPolicy
+        fields = ("name", "category", "customer_percent", "collector_percent", "operations_percent", "active", "effective_from")
+        widgets = {"effective_from": forms.DateTimeInput(attrs={"type": "datetime-local"})}
+
+    def clean(self):
+        cleaned = super().clean()
+        total = sum((cleaned.get(field) or 0 for field in ("customer_percent", "collector_percent", "operations_percent")))
+        if total != 100:
+            raise forms.ValidationError("The three economic percentages must total exactly 100%.")
+        return cleaned
+
+
+class MaterialRateForm(forms.ModelForm):
+    class Meta:
+        model = MaterialRate
+        fields = ("category", "rate_per_unit", "currency", "active", "effective_from")
+        widgets = {"effective_from": forms.DateTimeInput(attrs={"type": "datetime-local"})}
+
+
+class CollectorBonusForm(forms.ModelForm):
+    class Meta:
+        model = CollectorBonus
+        fields = ("name", "amount", "active", "effective_from", "effective_until", "eligibility_description")
+        widgets = {
+            "effective_from": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "effective_until": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "eligibility_description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class EconomicSettingForm(forms.ModelForm):
+    class Meta:
+        model = EconomicSetting
+        fields = ("customer_cashout_min_tokens", "collector_payout_min_tzs")

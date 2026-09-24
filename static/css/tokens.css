@@ -4,6 +4,7 @@
     --color-primary-hover: #094b51;
     --color-primary-soft: #dcebe9;
     --color-accent: #a8442e;
+    --color-accent-hover: #8f3826;
     --color-accent-soft: #fbe8e1;
     --color-background: #f7f4ec;
     --color-surface: #ffffff;
@@ -22,9 +23,12 @@
     --color-info-soft: #e6f2f7;
     --color-on-primary-muted: #c4d7d0;
     --color-on-primary-accent: #f5b39f;
-    --brand-ink: #0b2a2c;
-    --brand-green: #0f766e;
-    --brand-green-light: #2e9e8f;
+    --color-brand-ink: #0b2a2c;
+    --color-brand-green: #0f766e;
+    --color-brand-green-light: #2e9e8f;
+    --brand-ink: var(--color-brand-ink);
+    --brand-green: var(--color-brand-green);
+    --brand-green-light: var(--color-brand-green-light);
  
 
     /* Type */
@@ -102,5 +106,5 @@
     --cream: var(--color-background);
     --line: var(--color-border);
     --white: var(--color-surface);
-    --focus-ring: #145f9a;
+    --focus-ring: var(--color-info);
 }

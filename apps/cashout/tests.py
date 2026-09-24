@@ -16,14 +16,14 @@ class CashOutTestMixin:
     def create_rate(self, **overrides):
         values = {
             "tokens_per_money_unit": Decimal("100.00"),
-            "money_amount": Decimal("1000.00"),
+            "money_amount": Decimal("10000.00"),
             "currency": "TZS",
             "active": True,
         }
         values.update(overrides)
         return CashOutRate.objects.create(**values)
 
-    def fund_wallet(self, customer, amount="1500.00"):
+    def fund_wallet(self, customer, amount="15000.00"):
         return WalletTransaction.objects.create(
             wallet=customer.wallet,
             transaction_type=WalletTransaction.TransactionType.COLLECTION_REWARD,
@@ -35,8 +35,8 @@ class CashOutTestMixin:
     def create_request(self, customer, **overrides):
         values = {
             "customer": customer,
-            "token_amount": Decimal("1000.00"),
-            "money_amount": Decimal("10000.00"),
+            "token_amount": Decimal("10000.00"),
+            "money_amount": Decimal("1000000.00"),
             "currency": "TZS",
             "tokens_per_money_unit": Decimal("100.00"),
             "payout_method": CashOutRequest.PayoutMethod.MOBILE_MONEY,
@@ -86,7 +86,7 @@ class CashOutCreationTests(CashOutTestMixin, TestCase):
 
     def post(self, **data):
         values = {
-            "token_amount": "1000.00",
+            "token_amount": "10000.00",
             "payout_method": CashOutRequest.PayoutMethod.MOBILE_MONEY,
             "provider_name": "M-Pesa",
             "phone_number": "0712345678",
@@ -101,12 +101,18 @@ class CashOutCreationTests(CashOutTestMixin, TestCase):
         request = CashOutRequest.objects.get()
         transaction = WalletTransaction.objects.get(transaction_type=WalletTransaction.TransactionType.CASHOUT)
         self.assertEqual(request.status, CashOutRequest.Status.PENDING)
-        self.assertEqual(request.money_amount, Decimal("10000.00"))
+        self.assertEqual(request.money_amount, Decimal("1000000.00"))
         self.assertEqual(request.tokens_per_money_unit, Decimal("100.00"))
         self.assertEqual(request.currency, "TZS")
-        self.assertEqual(transaction.amount, Decimal("-1000.00"))
+        self.assertEqual(transaction.amount, Decimal("-10000.00"))
         self.assertEqual(transaction.reference, f"cashout-{request.pk}")
-        self.assertEqual(self.customer.wallet.balance, Decimal("500.00"))
+        self.assertEqual(self.customer.wallet.balance, Decimal("5000.00"))
+
+    def test_cashout_below_minimum_keeps_balance(self):
+        response = self.post(token_amount="9999.99")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CashOutRequest.objects.exists())
+        self.assertEqual(self.customer.wallet.balance, Decimal("15000.00"))
 
     def test_valid_bank_cashout_uses_account_number(self):
         response = self.post(
@@ -125,16 +131,16 @@ class CashOutCreationTests(CashOutTestMixin, TestCase):
         self.post()
         request = CashOutRequest.objects.get()
         self.rate.tokens_per_money_unit = Decimal("50.00")
-        self.rate.money_amount = Decimal("1000.00")
+        self.rate.money_amount = Decimal("10000.00")
         self.rate.save()
         request.refresh_from_db()
-        self.assertEqual(request.money_amount, Decimal("10000.00"))
+        self.assertEqual(request.money_amount, Decimal("1000000.00"))
         self.assertEqual(request.tokens_per_money_unit, Decimal("100.00"))
 
     def test_client_money_amount_is_not_trusted(self):
-        response = self.post(money_amount="1.00", token_amount="1000.00")
+        response = self.post(money_amount="1.00", token_amount="10000.00")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(CashOutRequest.objects.get().money_amount, Decimal("10000.00"))
+        self.assertEqual(CashOutRequest.objects.get().money_amount, Decimal("1000000.00"))
 
     def test_insufficient_balance_does_not_create_request_or_transaction(self):
         self.customer.wallet.transactions.all().delete()
@@ -160,7 +166,7 @@ class CashOutCreationTests(CashOutTestMixin, TestCase):
             with self.assertRaises(RuntimeError):
                 self.post()
         self.assertFalse(CashOutRequest.objects.exists())
-        self.assertEqual(self.customer.wallet.balance, Decimal("1500.00"))
+        self.assertEqual(self.customer.wallet.balance, Decimal("15000.00"))
 
 
 class CashOutWorkflowTests(CashOutTestMixin, TestCase):
@@ -171,7 +177,7 @@ class CashOutWorkflowTests(CashOutTestMixin, TestCase):
         self.cashout_transaction = WalletTransaction.objects.create(
             wallet=self.customer.wallet,
             transaction_type=WalletTransaction.TransactionType.CASHOUT,
-            amount=Decimal("-1000.00"),
+            amount=Decimal("-10000.00"),
             description=f"Cash-out request #{self.request.pk}",
             reference=f"cashout-{self.request.pk}",
         )
@@ -190,7 +196,7 @@ class CashOutWorkflowTests(CashOutTestMixin, TestCase):
         self.request.refresh_from_db()
         self.assertEqual(self.request.status, CashOutRequest.Status.REJECTED)
         refund = WalletTransaction.objects.get(transaction_type=WalletTransaction.TransactionType.ADJUSTMENT)
-        self.assertEqual(refund.amount, Decimal("1000.00"))
+        self.assertEqual(refund.amount, Decimal("10000.00"))
         self.assertEqual(WalletTransaction.objects.filter(transaction_type=WalletTransaction.TransactionType.CASHOUT).count(), 1)
         with self.assertRaises(ValidationError):
             self.request.transition_to(CashOutRequest.Status.REJECTED, self.admin)

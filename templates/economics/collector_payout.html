@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Collector Payout | TakaPay{% endblock %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Collector wallet</p>
+    <h1>Request TZS payout</h1>
+    <p class="form-intro">Available balance: {{ wallet.balance|floatformat:2 }} TZS. Minimum payout: {{ settings.collector_payout_min_tzs|floatformat:2 }} TZS.</p>
+    <form method="post" class="account-form">{% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}{% endfor %}
+        <button class="button button-primary" type="submit">Request payout</button>
+    </form>
+</section>
+{% endblock %}

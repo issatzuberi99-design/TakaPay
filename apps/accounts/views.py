@@ -15,7 +15,15 @@ from .forms import (
     TakaPayAuthenticationForm,
 )
 from .models import CollectorProfile, User
-from .operations_forms import MarketplacePreparationForm, RewardOperationsForm, TokenRateFormSet
+from .operations_forms import (
+    CollectorBonusForm,
+    EconomicPolicyForm,
+    EconomicSettingForm,
+    MarketplacePreparationForm,
+    MaterialRateForm,
+    RewardOperationsForm,
+    TokenRateFormSet,
+)
 from .services import set_collector_verification
 from apps.cashout.models import CashOutRequest
 from apps.collections.models import CollectionRequest
@@ -24,6 +32,7 @@ from apps.marketplace.services import transition_buyer_request
 from apps.wallet.models import WalletTransaction
 from apps.rewards.models import Reward, RewardRedemption
 from apps.waste.models import WasteCategory
+from apps.economics.models import CollectorBonus, CollectorPayout, CollectorWallet, EconomicPolicy, EconomicSettlement, EconomicSetting, MaterialRate
 
 
 def register(request):
@@ -154,6 +163,63 @@ def admin_reward_edit(request, reward_id=None):
 def admin_redemptions(request):
     redemptions = RewardRedemption.objects.select_related("customer", "reward")
     return render(request, "accounts/operations/redemptions.html", {"redemptions": redemptions})
+
+
+@platform_admin_required
+def admin_economics(request, section="overview"):
+    valid_sections = {"overview", "policies", "rates", "bonuses", "wallets", "payouts", "settlements", "settings"}
+    if section not in valid_sections:
+        section = "overview"
+    forms = {
+        "policy": EconomicPolicyForm(prefix="policy"),
+        "rate": MaterialRateForm(prefix="rate"),
+        "bonus": CollectorBonusForm(prefix="bonus"),
+        "settings": EconomicSettingForm(instance=EconomicSetting.current(), prefix="settings"),
+    }
+    if request.method == "POST":
+        form_key = request.POST.get("form_type")
+        form_map = {"policy": EconomicPolicyForm, "rate": MaterialRateForm, "bonus": CollectorBonusForm}
+        if form_key in form_map:
+            instance = None
+            if form_key == "rate":
+                instance = MaterialRate.objects.filter(category_id=request.POST.get("rate-category")).first()
+            form = form_map[form_key](request.POST, prefix=form_key, instance=instance)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f"Economic {form_key} saved.")
+                return redirect("admin_economics_section", section={"policy": "policies", "rate": "rates", "bonus": "bonuses"}[form_key])
+            forms[form_key] = form
+        elif form_key == "settings":
+            form = EconomicSettingForm(request.POST, instance=EconomicSetting.current(), prefix="settings")
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Economic thresholds updated.")
+                return redirect("admin_economics_section", section="settings")
+            forms["settings"] = form
+    return render(request, "accounts/operations/economics.html", {
+        "section": section,
+        "forms": forms,
+        "policies": EconomicPolicy.objects.select_related("category").all(),
+        "rates": MaterialRate.objects.select_related("category").all(),
+        "bonuses": CollectorBonus.objects.all(),
+        "wallets": CollectorWallet.objects.select_related("user").all(),
+        "payouts": CollectorPayout.objects.select_related("collector", "processed_by").all(),
+        "settlements": EconomicSettlement.objects.select_related("collection", "category", "policy").all(),
+        "settings_record": EconomicSetting.current(),
+    })
+
+
+@platform_admin_required
+def admin_collector_payout_transition(request, payout_id):
+    if request.method == "POST":
+        payout = get_object_or_404(CollectorPayout, pk=payout_id)
+        try:
+            payout.transition_to(request.POST.get("status"), request.user, request.POST.get("admin_notes", ""))
+        except ValidationError as error:
+            messages.error(request, " ".join(error.messages))
+        else:
+            messages.success(request, "Collector payout updated.")
+    return redirect("admin_economics_section", section="payouts")
 
 
 def _admin_collection_rows(queryset):
