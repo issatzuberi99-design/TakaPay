@@ -242,3 +242,37 @@ class MarketplaceAdminWorkflowTests(MarketplaceTestMixin, TestCase):
         self.request_record.refresh_from_db()
         self.assertEqual(self.request_record.status, BuyerRequest.Status.PROCESSING)
         self.assertEqual(self.request_record.admin_notes, "Reviewed")
+
+    def test_admin_completes_once_and_records_processor(self):
+        self.request_record.transition_to(BuyerRequest.Status.PROCESSING, self.admin)
+        self.client.force_login(self.admin)
+        url = reverse("admin:marketplace_buyerrequest_change", args=[self.request_record.pk])
+        data = {"status": BuyerRequest.Status.COMPLETED, "admin_notes": "Fulfilled", "_save": "Save"}
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        self.request_record.refresh_from_db()
+        self.material_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, BuyerRequest.Status.COMPLETED)
+        self.assertEqual(self.request_record.processed_by, self.admin)
+        self.assertIsNotNone(self.request_record.processed_at)
+        self.assertEqual(self.material_record.available_quantity, Decimal("400.00"))
+
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        self.material_record.refresh_from_db()
+        self.assertEqual(self.material_record.available_quantity, Decimal("400.00"))
+
+    def test_admin_shows_clear_error_when_completion_stock_is_insufficient(self):
+        self.request_record.transition_to(BuyerRequest.Status.PROCESSING, self.admin)
+        self.material_record.available_quantity = Decimal("50.00")
+        self.material_record.save(update_fields=["available_quantity", "updated_at"])
+        self.client.force_login(self.admin)
+        url = reverse("admin:marketplace_buyerrequest_change", args=[self.request_record.pk])
+        response = self.client.post(
+            url,
+            {"status": BuyerRequest.Status.COMPLETED, "admin_notes": "Fulfilled", "_save": "Save"},
+            follow=True,
+        )
+        self.assertContains(response, "There is not enough material available")
+        self.request_record.refresh_from_db()
+        self.material_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, BuyerRequest.Status.PROCESSING)
+        self.assertEqual(self.material_record.available_quantity, Decimal("50.00"))

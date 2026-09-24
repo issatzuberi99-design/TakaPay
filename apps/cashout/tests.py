@@ -8,6 +8,7 @@ from django.urls import reverse
 from apps.accounts.models import User
 from apps.wallet.models import WalletTransaction
 
+from .admin import CashOutRequestAdmin
 from .models import CashOutRate, CashOutRequest
 
 
@@ -203,3 +204,46 @@ class CashOutWorkflowTests(CashOutTestMixin, TestCase):
 
     def test_masked_destination_hides_sensitive_prefix(self):
         self.assertEqual(self.request.masked_destination, "******5678")
+
+class CashOutAdminTests(CashOutTestMixin, TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser(
+            username="cashout_ops_admin", email="ops@example.com", password="Strong-pass-123!"
+        )
+        self.customer = User.objects.create_user(
+            username="cashout_ops_customer", email="customer@example.com", phone_number="0700111222",
+            password="Strong-pass-123!", role=User.Role.CUSTOMER,
+        )
+        self.request_record = self.create_request(
+            self.customer,
+            payout_method=CashOutRequest.PayoutMethod.BANK,
+            phone_number="",
+            account_number="1234567890123456",
+        )
+        self.client.force_login(self.admin)
+        self.change_url = reverse("admin:cashout_cashoutrequest_change", args=[self.request_record.pk])
+
+    def test_payout_destination_is_available_on_detail_but_not_changelist(self):
+        detail = self.client.get(self.change_url)
+        self.assertContains(detail, self.request_record.account_number)
+        changelist = self.client.get(reverse("admin:cashout_cashoutrequest_changelist"))
+        self.assertEqual(changelist.status_code, 200)
+        self.assertNotContains(changelist, self.request_record.account_number)
+        self.assertNotIn("account_number", CashOutRequestAdmin.list_display)
+
+    def test_admin_uses_protected_status_transitions(self):
+        response = self.client.post(
+            self.change_url,
+            {"status": CashOutRequest.Status.COMPLETED, "admin_notes": "Paid", "_save": "Save"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.request_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, CashOutRequest.Status.PENDING)
+
+        response = self.client.post(
+            self.change_url,
+            {"status": CashOutRequest.Status.PROCESSING, "admin_notes": "Reviewed", "_save": "Save"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.request_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, CashOutRequest.Status.PROCESSING)

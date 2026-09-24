@@ -3,8 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models, transaction
-from django.utils import timezone
+from django.db import models
 
 from apps.waste.models import WasteCategory
 
@@ -88,28 +87,9 @@ class BuyerRequest(models.Model):
         ordering = ["-requested_at"]
 
     def transition_to(self, new_status, admin_user, admin_notes=""):
-        valid_transitions = {
-            self.Status.PENDING: {self.Status.PROCESSING, self.Status.REJECTED, self.Status.CANCELLED},
-            self.Status.PROCESSING: {self.Status.COMPLETED, self.Status.REJECTED, self.Status.CANCELLED},
-        }
-        with transaction.atomic():
-            request = type(self).objects.select_for_update().select_related("material").get(pk=self.pk)
-            if new_status not in valid_transitions.get(request.status, set()):
-                raise ValidationError(f"Cannot move a {request.get_status_display()} request to {new_status}.")
-            if new_status == self.Status.COMPLETED:
-                material = MarketplaceMaterial.objects.select_for_update().get(pk=request.material_id)
-                if material.available_quantity < request.requested_quantity:
-                    raise ValidationError("There is not enough material available to complete this request.")
-                material.available_quantity -= request.requested_quantity
-                material.save(update_fields=["available_quantity", "updated_at"])
-            request.status = new_status
-            request.admin_notes = admin_notes
-            if new_status in {self.Status.COMPLETED, self.Status.REJECTED, self.Status.CANCELLED}:
-                request.processed_at = timezone.now()
-                request.processed_by = admin_user
-            request.save(update_fields=["status", "admin_notes", "processed_at", "processed_by"])
-        self.refresh_from_db()
-        return self
+        from .services import transition_buyer_request
+
+        return transition_buyer_request(self, new_status, admin_user, admin_notes)
 
     def __str__(self):
         return f"{self.buyer_name} - {self.material_name}"

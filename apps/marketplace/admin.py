@@ -4,13 +4,18 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 
 from .models import BuyerRequest, MarketplaceMaterial
+from .services import transition_buyer_request
 
 
 @admin.register(MarketplaceMaterial)
 class MarketplaceMaterialAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "available_quantity", "unit", "price_per_unit", "active", "created_at")
+    list_display = (
+        "name", "category", "available_quantity", "unit", "price_per_unit", "active", "updated_at",
+    )
     list_filter = ("active", "unit", "category")
     search_fields = ("name", "description")
+    ordering = ("-updated_at", "name")
+    list_select_related = ("category",)
 
 
 class BuyerRequestAdminForm(forms.ModelForm):
@@ -36,7 +41,8 @@ class BuyerRequestAdminForm(forms.ModelForm):
                 BuyerRequest.Status.CANCELLED,
             },
         }
-        if cleaned_data["status"] != current.status and cleaned_data["status"] not in allowed_transitions.get(current.status, set()):
+        new_status = cleaned_data["status"]
+        if new_status != current.status and new_status not in allowed_transitions.get(current.status, set()):
             self.add_error("status", f"A {current.get_status_display()} request cannot be moved to that status.")
         return cleaned_data
 
@@ -44,23 +50,31 @@ class BuyerRequestAdminForm(forms.ModelForm):
 @admin.register(BuyerRequest)
 class BuyerRequestAdmin(admin.ModelAdmin):
     form = BuyerRequestAdminForm
-    list_display = ("id", "buyer_name", "material_name", "requested_quantity", "unit", "status", "requested_at")
-    list_filter = ("status", "unit", "requested_at")
-    search_fields = ("buyer_name", "company_name", "phone_number", "email", "material_name")
+    list_display = (
+        "id", "material_display", "buyer_name", "company_name", "requested_quantity", "unit",
+        "status", "requested_at", "processed_at", "processed_by",
+    )
+    list_filter = ("status", "unit", "requested_at", "processed_at")
+    search_fields = (
+        "buyer_name", "company_name", "phone_number", "email", "material_name", "material__name",
+    )
+    date_hierarchy = "requested_at"
+    list_select_related = ("material", "processed_by")
     readonly_fields = (
         "buyer_name", "company_name", "phone_number", "email", "location", "material",
         "material_name", "requested_quantity", "unit", "price_per_unit", "message",
         "requested_at", "processed_at", "processed_by",
     )
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("material", "processed_by")
+    @admin.display(description="Material", ordering="material_name")
+    def material_display(self, obj):
+        return obj.material_name or obj.material.name
 
     def save_model(self, request, obj, form, change):
         if change:
             original = BuyerRequest.objects.get(pk=obj.pk)
             if original.status != obj.status:
-                obj.transition_to(obj.status, request.user, obj.admin_notes)
+                transition_buyer_request(obj, obj.status, request.user, obj.admin_notes)
                 return
         super().save_model(request, obj, form, change)
 
@@ -68,6 +82,6 @@ class BuyerRequestAdmin(admin.ModelAdmin):
         try:
             return super().changeform_view(request, object_id, form_url, extra_context)
         except ValidationError as error:
-            # The inventory check can change between form validation and save.
+            # The stock check can change between form validation and the database save.
             messages.error(request, error.message)
             return HttpResponseRedirect(request.path)
