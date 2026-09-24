@@ -1,4 +1,19 @@
 /* New design-system components use ds-* names to coexist with legacy site.css. */
+.ds-wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    color: var(--color-brand-ink);
+    font-size: 1.45rem;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.075em;
+    line-height: 1;
+    white-space: nowrap;
+}
+.ds-wordmark span { color: var(--color-brand-ink); font-style: normal; }
+.ds-wordmark em { color: var(--color-brand-green); font-style: italic; font-weight: var(--font-weight-bold); }
+.ds-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block-start: var(--space-8); }
+.ds-section { padding-block: clamp(4rem, 8vw, 7.25rem); }
+
 .ds-button {
     display: inline-flex;
     min-height: 2.75rem;
@@ -30,6 +45,30 @@
 .ds-button--quiet:hover:not(:disabled) { background: var(--color-primary-soft); }
 .ds-button--danger { color: var(--color-surface); background: var(--color-danger); }
 .ds-button--danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+.ds-button--success { color: var(--color-surface); background: var(--color-success); }
+.ds-button--success:hover:not(:disabled) { background: var(--color-primary-hover); }
+
+/* Legacy .button markup remains supported while sharing the ds-button theme. */
+.button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-button);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    text-align: center;
+    text-decoration: none;
+}
+.button-primary { color: var(--color-surface); background: var(--color-primary); border-color: var(--color-primary); }
+.button-primary:hover { color: var(--color-surface); background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+.button-secondary { color: var(--color-primary); background: var(--color-surface); border-color: var(--color-primary); }
+.button-secondary:hover { color: var(--color-primary); background: var(--color-primary-soft); }
 
 .ds-form-field { display: grid; gap: var(--space-2); }
 .ds-form-field > label,

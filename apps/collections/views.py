@@ -9,6 +9,8 @@ from apps.accounts.decorators import approved_collector_required
 from apps.wallet.models import Wallet, WalletTransaction
 from apps.marketplace.models import MarketplaceMaterial
 from apps.waste.models import WasteCategory, WasteReport
+from apps.economics.models import EconomicPolicy, MaterialRate
+from apps.economics.services import settle_collection
 
 from .forms import CollectionCompletionForm
 from .rewards import calculate_collection_reward
@@ -81,8 +83,8 @@ def complete_collection(request, collection_id):
         messages.error(request, "Only accepted collections can be completed.")
         return redirect("collection_detail", collection_id=collection.id)
 
-    if WalletTransaction.objects.filter(collection=collection).exists():
-        messages.error(request, "This collection has already generated a token reward.")
+    if WalletTransaction.objects.filter(collection=collection).exists() or hasattr(collection, "economic_settlement"):
+        messages.error(request, "This collection has already been settled.")
         return redirect("collection_detail", collection_id=collection.id)
 
     category = collection.waste_report.category
@@ -103,46 +105,48 @@ def complete_collection(request, collection_id):
         except ValidationError as error:
             form.add_error(None, error)
         else:
-            collection.status = CollectionRequest.Status.COMPLETED
-            collection.completed_at = timezone.now()
-            collection.save()
-
-            report = collection.waste_report
-            report.status = WasteReport.Status.COLLECTED
-            report.save(update_fields=["status", "updated_at"])
-
-            wallet, _ = Wallet.objects.get_or_create(user=report.customer)
-            wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
-            WalletTransaction.objects.create(
-                wallet=wallet,
-                transaction_type=WalletTransaction.TransactionType.COLLECTION_REWARD,
-                amount=reward.amount,
-                description=f"Collection reward for {reward.material}",
-                reference=f"collection-reward-{collection.id}",
-                collection=collection,
-                collection_reward_unit=reward.unit,
-                collection_reward_quantity=reward.quantity,
-                collection_reward_rate=reward.rate,
-                collection_reward_material=reward.material,
-            )
-            if reward.unit == WasteCategory.RewardUnit.PIECE:
-                material_quantity = reward.quantity
-                material_unit = MarketplaceMaterial.Unit.PIECE
+            category = collection.waste_report.category
+            has_economic_configuration = EconomicPolicy.applicable(category.pk, timezone.now()) and MaterialRate.objects.filter(
+                category=category, active=True, effective_from__lte=timezone.now(),
+            ).exists()
+            if has_economic_configuration:
+                try:
+                    settle_collection(collection)
+                except ValidationError as error:
+                    form.add_error(None, error)
+                else:
+                    messages.success(request, "Collection settled, tokens and collector earnings credited, and material sent to the preparation queue.")
+                    return redirect("collection_detail", collection_id=collection.id)
             else:
-                material_quantity = reward.quantity
-                material_unit = MarketplaceMaterial.Unit.KILOGRAM
-            MarketplaceMaterial.objects.create(
-                name=report.category.name,
-                description="",
-                category=report.category,
-                available_quantity=material_quantity,
-                unit=material_unit,
-                active=False,
-                preparation_status=MarketplaceMaterial.PreparationStatus.READY,
-                source_collection=collection,
-            )
+                collection.status = CollectionRequest.Status.COMPLETED
+                collection.completed_at = timezone.now()
+                collection.save()
 
-            messages.success(request, "Collection completed, tokens credited, and material sent to the preparation queue.")
-            return redirect("collection_detail", collection_id=collection.id)
+                report = collection.waste_report
+                report.status = WasteReport.Status.COLLECTED
+                report.save(update_fields=["status", "updated_at"])
+
+                wallet, _ = Wallet.objects.get_or_create(user=report.customer)
+                wallet = Wallet.objects.select_for_update().get(pk=wallet.pk)
+                WalletTransaction.objects.create(
+                    wallet=wallet,
+                    transaction_type=WalletTransaction.TransactionType.COLLECTION_REWARD,
+                    amount=reward.amount,
+                    description=f"Collection reward for {reward.material}",
+                    reference=f"collection-reward-{collection.id}",
+                    collection=collection,
+                    collection_reward_unit=reward.unit,
+                    collection_reward_quantity=reward.quantity,
+                    collection_reward_rate=reward.rate,
+                    collection_reward_material=reward.material,
+                )
+                material_unit = MarketplaceMaterial.Unit.PIECE if reward.unit == WasteCategory.RewardUnit.PIECE else MarketplaceMaterial.Unit.KILOGRAM
+                MarketplaceMaterial.objects.create(
+                    name=report.category.name, description="", category=report.category,
+                    available_quantity=reward.quantity, unit=material_unit, active=False,
+                    preparation_status=MarketplaceMaterial.PreparationStatus.READY, source_collection=collection,
+                )
+                messages.success(request, "Collection completed, tokens credited, and material sent to the preparation queue.")
+                return redirect("collection_detail", collection_id=collection.id)
 
     return render(request, "collections/complete.html", {"form": form, "collection": collection})

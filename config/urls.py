@@ -25,6 +25,9 @@ urlpatterns = [
     path("admin/operations/rewards/new/", account_views.admin_reward_edit, name="admin_reward_create"),
     path("admin/operations/rewards/<int:reward_id>/", account_views.admin_reward_edit, name="admin_reward_edit"),
     path("admin/operations/redemptions/", account_views.admin_redemptions, name="admin_redemptions"),
+    path("admin/operations/economics/", account_views.admin_economics, name="admin_economics"),
+    path("admin/operations/economics/<str:section>/", account_views.admin_economics, name="admin_economics_section"),
+    path("admin/operations/economics/payouts/<int:payout_id>/transition/", account_views.admin_collector_payout_transition, name="admin_collector_payout_transition"),
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
     path("marketplace/", include("apps.marketplace.urls")),
@@ -40,6 +43,7 @@ urlpatterns = [
     path("wallet/", include("apps.wallet.urls")),
     path("rewards/", include("apps.rewards.urls")),
     path("cashout/", include("apps.cashout.urls")),
+    path("economics/", include("apps.economics.urls")),
     path("service-worker.js", views.service_worker, name="service_worker"),
     path("api/", include("config.api_urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
