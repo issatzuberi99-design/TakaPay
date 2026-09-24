@@ -61,7 +61,16 @@ class AuthenticationTests(TestCase):
         profile.save()
         self.client.login(username="collector", password="Strong-pass-123!")
         response = self.client.get(reverse("collector_jobs"))
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse("collections_dashboard"))
+
+    def test_approved_collector_dashboard_opens_collection_queue(self):
+        self.client.post(reverse("collector_register"), self.collector_data())
+        profile = CollectorProfile.objects.get(user__username="collector")
+        profile.verification_status = CollectorProfile.VerificationStatus.APPROVED
+        profile.save()
+        self.client.login(username="collector", password="Strong-pass-123!")
+        response = self.client.get(reverse("dashboard"))
+        self.assertRedirects(response, reverse("collections_dashboard"))
 
     def test_customer_cannot_access_collection_jobs(self):
         self.client.post(reverse("register"), self.customer_data())

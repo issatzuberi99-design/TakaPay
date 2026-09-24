@@ -49,7 +49,7 @@ def dashboard(request):
         profile = getattr(request.user, "collector_profile", None)
         if profile is None or profile.verification_status != profile.VerificationStatus.APPROVED:
             return render(request, "accounts/pending_verification.html")
-        return render(request, "accounts/collector_dashboard.html")
+        return redirect("collections_dashboard")
     if request.user.role == User.Role.ADMIN:
         return redirect("admin_analytics_dashboard")
     return render(request, "accounts/customer_dashboard.html")
@@ -57,7 +57,7 @@ def dashboard(request):
 
 @approved_collector_required
 def collector_jobs(request):
-    return render(request, "placeholder.html", {"title": "Collection jobs", "message": "Collection jobs will be added in a later task."})
+    return redirect("collections_dashboard")
 
 
 @login_required

@@ -75,6 +75,70 @@ class CollectionRequestTests(TestCase):
         response = self.client.get(reverse("collections_dashboard"))
         self.assertEqual(response.status_code, 200)
 
+    def test_available_unassigned_request_is_shown_and_hides_empty_state(self):
+        self.assertIsNone(self.collection.collector)
+        self.client.force_login(self.approved_collector)
+        response = self.client.get(reverse("collections_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Plastic bottles")
+        self.assertNotContains(response, "No collection requests are currently available.")
+
+    def test_empty_state_is_shown_when_no_available_jobs_exist(self):
+        self.collection.status = CollectionRequest.Status.CANCELLED
+        self.collection.save(update_fields=["status", "updated_at"])
+        self.client.force_login(self.approved_collector)
+        response = self.client.get(reverse("collections_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No collection requests are currently available.")
+
+    def test_assigned_accepted_request_is_not_available_to_other_collector(self):
+        another_collector = User.objects.create_user(
+            username="another_collector",
+            password="Strong-pass-123!",
+            role=User.Role.COLLECTOR,
+        )
+        CollectorProfile.objects.create(
+            user=another_collector,
+            verification_status=CollectorProfile.VerificationStatus.APPROVED,
+            identification_reference="COL-103",
+            address="Chake Chake",
+        )
+        self.collection.collector = self.approved_collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        self.client.force_login(another_collector)
+        response = self.client.get(reverse("collections_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.report.description)
+        self.client.post(reverse("collection_accept", args=[self.collection.id]))
+        self.collection.refresh_from_db()
+        self.assertEqual(self.collection.collector, self.approved_collector)
+        self.assertEqual(self.collection.status, CollectionRequest.Status.ACCEPTED)
+
+    def test_completed_and_cancelled_requests_are_not_available(self):
+        self.collection.status = CollectionRequest.Status.COMPLETED
+        self.collection.save(update_fields=["status", "updated_at"])
+        cancelled_report = WasteReport.objects.create(
+            customer=self.customer,
+            category=self.category,
+            description="Cancelled report",
+            estimated_weight=Decimal("1.00"),
+            weight_unit=WasteReport.WeightUnit.KILOGRAMS,
+            latitude=Decimal("-6.1659"),
+            longitude=Decimal("39.2026"),
+            location_accuracy=Decimal("15.00"),
+            status=WasteReport.Status.SUBMITTED,
+        )
+        cancelled = CollectionRequest.objects.create(
+            waste_report=cancelled_report,
+            status=CollectionRequest.Status.CANCELLED,
+        )
+        self.client.force_login(self.approved_collector)
+        response = self.client.get(reverse("collections_dashboard"))
+        self.assertNotContains(response, self.report.description)
+        self.assertNotContains(response, cancelled_report.description)
+        self.assertContains(response, "No collection requests are currently available.")
+
     def test_customer_cannot_access_collector_dashboard(self):
         self.client.force_login(self.customer)
         response = self.client.get(reverse("collections_dashboard"))
