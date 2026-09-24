@@ -11,6 +11,11 @@
         </span>
         <span class="report-status">{{ wallet.balance }} TTP</span>
     </div>
+    <div class="hero-actions">
+        <a class="button button-primary" href="{% url 'cashout_create' %}">Cash Out</a>
+        <a class="button button-secondary" href="{% url 'reward_list' %}">Browse Rewards</a>
+        <a class="button button-secondary" href="{% url 'cashout_history' %}">Cash-out History</a>
+    </div>
 
     {% if transactions %}
         <div class="report-list">

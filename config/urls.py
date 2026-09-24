@@ -21,6 +21,7 @@ urlpatterns = [
     path("waste/", include("apps.waste.urls")),
     path("wallet/", include("apps.wallet.urls")),
     path("rewards/", include("apps.rewards.urls")),
+    path("cashout/", include("apps.cashout.urls")),
     path("service-worker.js", views.service_worker, name="service_worker"),
     path("api/", include("config.api_urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

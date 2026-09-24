@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Cash-out History | TakaPay{% endblock %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Cash out</p>
+    <h1>Cash-out history</h1>
+    {% if cashout_requests %}
+        <div class="report-list">
+            {% for cashout in cashout_requests %}
+                <div class="report-item">
+                    <span>
+                        <strong>Request #{{ cashout.id }}</strong>
+                        <small>{{ cashout.payout_method|title }} · {{ cashout.provider_name }}</small>
+                        <small>{{ cashout.masked_destination }}</small>
+                    </span>
+                    <span>
+                        <strong>{{ cashout.token_amount }} TTP</strong>
+                        <small>{{ cashout.money_amount }} {{ cashout.currency }}</small>
+                    </span>
+                    <span>
+                        <strong class="report-status">{{ cashout.get_status_display }}</strong>
+                        <small>{{ cashout.requested_at|date:"M d, Y H:i" }}</small>
+                        {% if cashout.processed_at %}<small>Processed {{ cashout.processed_at|date:"M d, Y H:i" }}</small>{% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">You have not made a cash-out request yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

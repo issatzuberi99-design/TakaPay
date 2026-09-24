@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Cash Out | TakaPay{% endblock %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Cash out</p>
+    <h1>Request a cash-out</h1>
+    <div class="report-item" style="margin: 24px 0; grid-template-columns: 1fr auto;">
+        <span><strong>Available tokens</strong><small>Calculated from your ledger</small></span>
+        <span class="report-status">{{ wallet.balance }} TTP</span>
+    </div>
+    {% if rate %}
+        <p class="form-intro">Current rate: {{ rate.tokens_per_money_unit }} tokens = {{ rate.money_amount }} {{ rate.currency }}.</p>
+        <form method="post" class="account-form" id="cashout-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            {% endfor %}
+            <p class="form-intro">Estimated value: <strong id="money-preview">0.00 {{ rate.currency }}</strong></p>
+            <button class="button button-primary" type="submit">Submit cash-out request</button>
+        </form>
+        <script>
+            const tokenInput = document.getElementById("id_token_amount");
+            const preview = document.getElementById("money-preview");
+            const tokensPerUnit = Number("{{ rate.tokens_per_money_unit }}");
+            const moneyAmount = Number("{{ rate.money_amount }}");
+            const currency = "{{ rate.currency|escapejs }}";
+            function updateCashoutPreview() {
+                const tokens = Number(tokenInput.value || 0);
+                const amount = tokens > 0 ? (tokens / tokensPerUnit) * moneyAmount : 0;
+                preview.textContent = `${amount.toFixed(2)} ${currency}`;
+            }
+            tokenInput.addEventListener("input", updateCashoutPreview);
+            updateCashoutPreview();
+        </script>
+    {% else %}
+        <p class="message message-error">Cash-out is not available because no active rate has been configured.</p>
+    {% endif %}
+</section>
+{% endblock %}
