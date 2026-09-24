@@ -5,7 +5,7 @@ from .models import WasteCategory, WasteReport
 
 @admin.register(WasteCategory)
 class WasteCategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "active", "created_at", "updated_at")
+    list_display = ("name", "token_rate_per_kg", "active", "created_at", "updated_at")
     list_filter = ("active",)
     search_fields = ("name",)
 

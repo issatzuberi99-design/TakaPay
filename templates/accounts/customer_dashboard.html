@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Customer Dashboard | TakaPay{% endblock %}
 {% block content %}
-<section class="placeholder-page"><p class="eyebrow">Customer</p><h1>Customer Dashboard</h1><p>Welcome to your TakaPay dashboard.</p></section>
+<section class="form-page">
+    <p class="eyebrow">Customer</p>
+    <h1>Customer Dashboard</h1>
+    <p class="form-intro">Welcome to your TakaPay dashboard.</p>
+    <div class="report-item" style="margin-top: 24px; grid-template-columns: 1fr auto;">
+        <span>
+            <strong>Token wallet</strong>
+            <small>Available balance</small>
+        </span>
+        <span class="report-status">{{ user.wallet.balance }} TTP</span>
+    </div>
+</section>
 {% endblock %}

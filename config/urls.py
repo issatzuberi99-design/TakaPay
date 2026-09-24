@@ -19,6 +19,7 @@ urlpatterns = [
     path("collector/jobs/", account_views.collector_jobs, name="collector_jobs"),
     path("collections/", include("apps.collections.urls")),
     path("waste/", include("apps.waste.urls")),
+    path("wallet/", include("apps.wallet.urls")),
     path("service-worker.js", views.service_worker, name="service_worker"),
     path("api/", include("config.api_urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
