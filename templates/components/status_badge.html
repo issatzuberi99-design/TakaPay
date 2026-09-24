@@ -1,0 +1,11 @@
+{% if tone == "success" %}
+    <span class="ds-badge ds-badge--success">{{ label|default:status }}</span>
+{% elif tone == "warning" %}
+    <span class="ds-badge ds-badge--warning">{{ label|default:status }}</span>
+{% elif tone == "danger" %}
+    <span class="ds-badge ds-badge--danger">{{ label|default:status }}</span>
+{% elif tone == "info" %}
+    <span class="ds-badge ds-badge--info">{{ label|default:status }}</span>
+{% else %}
+    <span class="ds-badge ds-badge--neutral">{{ label|default:status }}</span>
+{% endif %}

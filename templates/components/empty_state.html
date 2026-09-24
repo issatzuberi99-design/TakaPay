@@ -1,0 +1,5 @@
+<div class="ds-empty-state">
+    {% if heading %}<h2 class="ds-empty-state__title">{{ heading }}</h2>{% endif %}
+    {% if message %}<p>{{ message }}</p>{% endif %}
+    {% if action_url and action_label %}<a class="ds-button ds-button--primary" href="{{ action_url }}">{{ action_label }}</a>{% endif %}
+</div>

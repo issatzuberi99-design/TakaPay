@@ -1,0 +1,110 @@
+/* New design-system components use ds-* names to coexist with legacy site.css. */
+.ds-button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-button);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.ds-button:hover:not(:disabled) { transform: translateY(-1px); }
+.ds-button:active:not(:disabled) { transform: translateY(0); }
+.ds-button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.ds-button:disabled,
+.ds-button[aria-disabled="true"] { opacity: 0.58; pointer-events: none; }
+.ds-button--primary { color: var(--color-surface); background: var(--color-primary); }
+.ds-button--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+.ds-button--secondary { color: var(--color-primary); background: var(--color-surface); border-color: var(--color-primary); }
+.ds-button--secondary:hover:not(:disabled) { background: var(--color-primary-soft); }
+.ds-button--quiet { color: var(--color-primary); background: transparent; }
+.ds-button--quiet:hover:not(:disabled) { background: var(--color-primary-soft); }
+.ds-button--danger { color: var(--color-surface); background: var(--color-danger); }
+.ds-button--danger:hover:not(:disabled) { background: var(--color-danger-hover); }
+
+.ds-form-field { display: grid; gap: var(--space-2); }
+.ds-form-field > label,
+.ds-label { color: var(--color-text); font-size: var(--font-size-label); font-weight: var(--font-weight-semibold); }
+.ds-required { color: var(--color-danger); margin-inline-start: var(--space-1); }
+.ds-form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.ds-form-field select,
+.ds-form-field textarea,
+.ds-control {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-family: var(--font-family);
+    font-size: var(--font-size-md);
+}
+.ds-form-field textarea { min-height: 8rem; resize: vertical; }
+.ds-form-field input[type="checkbox"],
+.ds-form-field input[type="radio"] { accent-color: var(--color-primary); }
+.ds-help { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.ds-error,
+.ds-form-field .errorlist { color: var(--color-danger); font-size: var(--font-size-sm); }
+.ds-form-field .errorlist { list-style: none; margin: 0; padding: 0; }
+.ds-form-field--error input,
+.ds-form-field--error select,
+.ds-form-field--error textarea { border-color: var(--color-danger); }
+
+.ds-card { min-width: 0; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.ds-card--muted { background: var(--color-surface-muted); }
+
+.ds-badge {
+    display: inline-flex;
+    min-height: 1.5rem;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.2;
+}
+.ds-badge--neutral { color: var(--color-text); background: var(--color-surface-muted); }
+.ds-badge--success { color: var(--color-success); background: var(--color-success-soft); }
+.ds-badge--warning { color: var(--color-warning); background: var(--color-warning-soft); }
+.ds-badge--danger { color: var(--color-danger); background: var(--color-danger-soft); }
+.ds-badge--info { color: var(--color-info); background: var(--color-info-soft); }
+
+.ds-alert,
+.ds-message { padding: var(--space-4); border: 1px solid var(--color-border); border-inline-start-width: 4px; border-radius: var(--radius-sm); background: var(--color-surface); }
+.ds-alert--success,
+.ds-message--success { color: var(--color-success); border-inline-start-color: var(--color-success); background: var(--color-success-soft); }
+.ds-alert--info,
+.ds-message--info { color: var(--color-info); border-inline-start-color: var(--color-info); background: var(--color-info-soft); }
+.ds-alert--warning,
+.ds-message--warning { color: var(--color-warning); border-inline-start-color: var(--color-warning); background: var(--color-warning-soft); }
+.ds-alert--error,
+.ds-alert--danger,
+.ds-message--error { color: var(--color-danger); border-inline-start-color: var(--color-danger); background: var(--color-danger-soft); }
+
+.ds-table-wrap { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.ds-table { width: 100%; border-collapse: collapse; background: var(--color-surface); font-size: var(--font-size-sm); line-height: var(--line-height-normal); }
+.ds-table caption { padding: 0 0 var(--space-3); color: var(--color-text-muted); text-align: start; }
+.ds-table th,
+.ds-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); text-align: start; vertical-align: top; }
+.ds-table thead th { color: var(--color-text-muted); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); letter-spacing: 0.04em; text-transform: uppercase; }
+.ds-table tbody tr:hover { background: var(--color-surface-muted); }
+
+.ds-empty-state { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-8); border: 1px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.ds-empty-state > :last-child { margin-block-end: 0; }
+.ds-empty-state__title { margin: 0; font-size: var(--font-size-xl); }
+
+/* Keep the existing Django message classes while adding semantic variants. */
+.messages .message-success { color: var(--color-success); border-left-color: var(--color-success); background: var(--color-success-soft); }
+.messages .message-info { color: var(--color-info); border-left-color: var(--color-info); background: var(--color-info-soft); }
+.messages .message-warning { color: var(--color-warning); border-left-color: var(--color-warning); background: var(--color-warning-soft); }
+.messages .message-error { color: var(--color-danger); border-left-color: var(--color-danger); background: var(--color-danger-soft); }
