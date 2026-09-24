@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Redemption History | TakaPay{% endblock %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Rewards</p>
+    <h1>Redemption history</h1>
+    {% if redemptions %}
+        <div class="report-list">
+            {% for redemption in redemptions %}
+                <div class="report-item">
+                    <span>
+                        <strong>{{ redemption.reward.name }}</strong>
+                        <small>{{ redemption.created_at|date:"M d, Y H:i" }}</small>
+                    </span>
+                    <span><strong class="text-danger">-{{ redemption.token_amount }} TTP</strong></span>
+                    <span class="report-status">{{ redemption.get_status_display }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">You have not redeemed a reward yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

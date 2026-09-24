@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Rewards | TakaPay{% endblock %}
+{% block content %}
+<section class="catalog-page">
+    <div class="section-title-row">
+        <div>
+            <p class="eyebrow">Rewards catalog</p>
+            <h1>Turn tokens into useful things.</h1>
+        </div>
+        <div class="balance-panel">
+            <small>Your token balance</small>
+            <strong>{{ wallet.balance }} TTP</strong>
+        </div>
+    </div>
+    {% if rewards %}
+        <div class="reward-grid">
+            {% for reward in rewards %}
+                <article class="reward-card">
+                    {% if reward.image %}
+                        <img src="{{ reward.image.url }}" alt="{{ reward.name }}">
+                    {% else %}
+                        <div class="reward-placeholder" aria-hidden="true">TTP</div>
+                    {% endif %}
+                    <div class="reward-card-body">
+                        <p class="eyebrow">{{ reward.token_cost }} TTP</p>
+                        <h2>{{ reward.name }}</h2>
+                        <p>{{ reward.description|truncatewords:24 }}</p>
+                        {% if reward.inventory > 0 %}
+                            <small class="availability">{{ reward.inventory }} available</small>
+                        {% else %}
+                            <small class="availability text-danger">Out of stock</small>
+                        {% endif %}
+                        <a class="button button-primary" href="{% url 'reward_detail' reward.id %}">View reward</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">No rewards are available right now.</p>
+    {% endif %}
+</section>
+{% endblock %}

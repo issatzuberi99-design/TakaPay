@@ -66,6 +66,26 @@ nav button { cursor: pointer; }
 .report-details dt { color: var(--muted); font: .85rem Arial, sans-serif; }
 .report-details dd { margin: 0; }
 .report-photo { display: block; max-height: 360px; max-width: 100%; object-fit: cover; }
+.catalog-page, .reward-detail-page { margin: 0 auto; max-width: 1180px; padding: 70px 28px 110px; }
+.catalog-page h1 { font-size: clamp(3rem, 7vw, 6rem); max-width: 720px; }
+.balance-panel { background: var(--teal); color: var(--white); display: grid; gap: 8px; padding: 18px 22px; }
+.balance-panel small { color: #c4d7d0; font: .8rem Arial, sans-serif; }
+.balance-panel strong { font-size: 1.4rem; font-weight: 400; }
+.reward-grid { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); margin-top: 50px; }
+.reward-card { background: var(--white); border-top: 3px solid var(--teal); display: flex; flex-direction: column; }
+.reward-card img, .reward-placeholder { aspect-ratio: 4 / 3; display: block; object-fit: cover; width: 100%; }
+.reward-placeholder, .reward-detail-placeholder { align-items: center; background: #dce8df; color: var(--teal); display: flex; font: 700 2rem Arial, sans-serif; justify-content: center; letter-spacing: .08em; }
+.reward-card-body { display: grid; gap: 12px; padding: 22px; }
+.reward-card-body .eyebrow { margin-bottom: 0; }
+.reward-card h2 { font-size: 1.7rem; font-weight: 400; margin: 0; }
+.reward-card p:not(.eyebrow), .reward-description { color: var(--muted); font: .95rem/1.6 Arial, sans-serif; }
+.availability { color: var(--muted); font: .8rem Arial, sans-serif; }
+.reward-card .button { justify-self: start; margin-top: 8px; }
+.reward-detail-layout { display: grid; gap: 60px; grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr); margin-top: 38px; }
+.reward-detail-image, .reward-detail-placeholder { aspect-ratio: 4 / 3; display: block; object-fit: cover; width: 100%; }
+.reward-detail-copy h1 { font-size: clamp(3rem, 7vw, 6rem); }
+.reward-detail-copy .message { margin: 20px 0; }
+@media (max-width: 800px) { .reward-grid { grid-template-columns: repeat(2, 1fr); } .reward-detail-layout { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .section-title-row { align-items: flex-start; flex-direction: column; } .report-item { grid-template-columns: 1fr; } }
 .placeholder-page { margin: 0 auto; max-width: 760px; min-height: 55vh; padding: 110px 28px; }
 .placeholder-page h1 { font-size: clamp(3rem, 8vw, 6rem); }
@@ -75,5 +95,6 @@ nav button { cursor: pointer; }
     nav { flex-wrap: wrap; gap: 14px; }
     .hero { padding-top: 70px; }
     .flow-grid { grid-template-columns: repeat(2, 1fr); }
+    .reward-grid { grid-template-columns: 1fr; }
     .marketplace-strip { align-items: flex-start; flex-direction: column; }
 }
