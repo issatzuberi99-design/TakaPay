@@ -86,6 +86,7 @@ nav button { cursor: pointer; }
 .reward-detail-copy h1 { font-size: clamp(3rem, 7vw, 6rem); }
 .reward-detail-copy .message { margin: 20px 0; }
 .cashout-history-destination { color: var(--muted); font-family: Arial, sans-serif; }
+.marketplace-request-note { color: var(--muted); font: .85rem/1.5 Arial, sans-serif; }
 @media (max-width: 800px) { .reward-grid { grid-template-columns: repeat(2, 1fr); } .reward-detail-layout { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .section-title-row { align-items: flex-start; flex-direction: column; } .report-item { grid-template-columns: 1fr; } }
 .placeholder-page { margin: 0 auto; max-width: 760px; min-height: 55vh; padding: 110px 28px; }

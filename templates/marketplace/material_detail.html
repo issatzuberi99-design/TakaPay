@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ material.name }} | Marketplace{% endblock %}
+{% block content %}
+<section class="reward-detail-page">
+    <a class="text-link" href="{% url 'marketplace' %}">Back to marketplace</a>
+    <div class="reward-detail-layout">
+        <div>{% if material.image %}<img class="reward-detail-image" src="{{ material.image.url }}" alt="{{ material.name }}">{% else %}<div class="reward-detail-placeholder" aria-hidden="true">RECYCLE</div>{% endif %}</div>
+        <div class="reward-detail-copy">
+            <p class="eyebrow">{{ material.category.name }}</p>
+            <h1>{{ material.name }}</h1>
+            <p class="reward-description">{{ material.description }}</p>
+            <dl class="report-details">
+                <dt>Available</dt><dd>{{ material.available_quantity }} {{ material.get_unit_display }}</dd>
+                {% if material.price_per_unit %}<dt>Informational price</dt><dd>{{ material.price_per_unit }} per {{ material.get_unit_display|lower }}</dd>{% endif %}
+            </dl>
+            <a class="button button-primary" href="{% url 'buyer_request_create' material.id %}">Request material</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -9,7 +9,7 @@ from apps.accounts import views as account_views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
-    path("marketplace/", views.marketplace, name="marketplace"),
+    path("marketplace/", include("apps.marketplace.urls")),
     path("login/", account_views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("register/", account_views.register, name="register"),

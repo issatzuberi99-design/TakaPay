@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Request Submitted | Marketplace{% endblock %}
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Request submitted</p>
+    <h1>Request received.</h1>
+    <p class="form-intro">The TakaPay team will review your request and contact you.</p>
+    <dl class="report-details">
+        <dt>Reference</dt><dd>TP-{{ buyer_request.id|stringformat:"06d" }}</dd>
+        <dt>Material</dt><dd>{{ buyer_request.material_name }}</dd>
+        <dt>Quantity</dt><dd>{{ buyer_request.requested_quantity }} {{ buyer_request.get_unit_display }}</dd>
+        <dt>Status</dt><dd>{{ buyer_request.get_status_display }}</dd>
+    </dl>
+    <a class="button button-secondary" href="{% url 'marketplace' %}">Back to marketplace</a>
+</section>
+{% endblock %}

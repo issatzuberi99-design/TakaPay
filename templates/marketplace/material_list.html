@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Marketplace | TakaPay{% endblock %}
+{% block content %}
+<section class="catalog-page">
+    <p class="eyebrow">Public marketplace</p>
+    <h1>Materials ready for their next use.</h1>
+    {% if materials %}
+        <div class="reward-grid">
+            {% for material in materials %}
+                <article class="reward-card">
+                    {% if material.image %}<img src="{{ material.image.url }}" alt="{{ material.name }}">{% else %}<div class="reward-placeholder" aria-hidden="true">RECYCLE</div>{% endif %}
+                    <div class="reward-card-body">
+                        <p class="eyebrow">{{ material.category.name }}</p>
+                        <h2>{{ material.name }}</h2>
+                        <p>{{ material.description|truncatewords:24 }}</p>
+                        <small class="availability">{{ material.available_quantity }} {{ material.get_unit_display }} available</small>
+                        {% if material.price_per_unit %}<small class="availability">{{ material.price_per_unit }} per {{ material.get_unit_display|lower }}</small>{% endif %}
+                        <a class="button button-secondary" href="{% url 'marketplace_material_detail' material.id %}">View details</a>
+                        <a class="button button-primary" href="{% url 'buyer_request_create' material.id %}">Request material</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}<p class="empty-state">No recyclable materials are available right now.</p>{% endif %}
+</section>
+{% endblock %}
