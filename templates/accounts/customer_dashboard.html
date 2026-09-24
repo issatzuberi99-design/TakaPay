@@ -1,16 +1,99 @@
 {% extends "base.html" %}
-{% block title %}Customer Dashboard | TakaPay{% endblock %}
+{% block title %}Dashboard | TakaPay{% endblock %}
 {% block content %}
-<section class="form-page">
-    <p class="eyebrow">Customer</p>
-    <h1>Customer Dashboard</h1>
-    <p class="form-intro">Welcome to your TakaPay dashboard.</p>
-    <div class="report-item" style="margin-top: 24px; grid-template-columns: 1fr auto;">
-        <span>
-            <strong>Token wallet</strong>
-            <small>Available balance</small>
-        </span>
-        <span class="report-status">{{ user.wallet.balance }} TTP</span>
+{# Rename these URL names to match your urls.py. A name that does not exist simply hides its button or tile. #}
+{% url 'waste_report_create' as report_url %}
+{% url 'waste_report_list' as reports_url %}
+{% url 'reward_list' as rewards_url %}
+{% url 'cashout_create' as cashout_url %}
+
+<section class="app-page">
+    <header class="app-page__header">
+        <h1>Hello, {{ user.get_short_name|default:user.get_username }}</h1>
+        <p>Your token balance and what you can do with it.</p>
+    </header>
+
+    <div class="wallet-panel">
+        <div>
+            <p class="wallet-panel__label">Token wallet</p>
+            <p class="wallet-panel__amount">{{ wallet.balance|floatformat:2 }}<span>TTP</span></p>
+        </div>
+        <div class="wallet-panel__actions">
+            {% if cashout_url %}<a class="ds-button ds-button--secondary" href="{{ cashout_url }}">Cash out</a>{% endif %}
+            {% if rewards_url %}<a class="ds-button ds-button--on-dark" href="{{ rewards_url }}">Browse rewards</a>{% endif %}
+        </div>
+        {% if total_recycled_kg %}
+            <p class="wallet-panel__note">You have recycled {{ total_recycled_kg|floatformat:1 }} kg with TakaPay.</p>
+        {% endif %}
     </div>
+
+    <div class="action-grid">
+        {% if report_url %}
+        <a class="action-tile action-tile--primary" href="{{ report_url }}">
+            <span class="action-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+            <strong>Report waste</strong>
+            <small>Add a photo, category and pickup spot.</small>
+        </a>
+        {% endif %}
+        {% if reports_url %}
+        <a class="action-tile" href="{{ reports_url }}">
+            <span class="action-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></span>
+            <strong>My reports</strong>
+            <small>Follow each report until it is collected.</small>
+        </a>
+        {% endif %}
+        <a class="action-tile" href="{% url 'marketplace' %}">
+            <span class="action-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9l1.5-4h13L20 9M4 9h16v10H4zM9 13h6"/></svg></span>
+            <strong>Materials marketplace</strong>
+            <small>See recyclable materials buyers can request.</small>
+        </a>
+    </div>
+
+    {% if recent_reports is not None or recent_transactions is not None %}
+    <div class="app-columns app-section">
+        {% if recent_reports is not None %}
+        <div>
+            <h2>Recent reports</h2>
+            {% if recent_reports %}
+            <ul class="activity-list">
+                {% for report in recent_reports %}
+                <li class="activity-row">
+                    <span><strong>{{ report.category.name }}</strong><small>{{ report.created_at|date:"j M Y" }}</small></span>
+                    <span class="ds-badge ds-badge--{% if report.status == 'verified' or report.status == 'collected' %}success{% elif report.status == 'cancelled' %}danger{% else %}warning{% endif %}">{{ report.get_status_display }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="ds-empty-state">
+                <p class="ds-empty-state__title">No reports yet</p>
+                <p>Report your first pile of recyclables and a collector will pick it up.</p>
+                {% if report_url %}<a class="ds-button ds-button--primary" href="{{ report_url }}">Report waste</a>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if recent_transactions is not None %}
+        <div>
+            <h2>Wallet activity</h2>
+            {% if recent_transactions %}
+            <ul class="activity-list">
+                {% for tx in recent_transactions %}
+                <li class="activity-row">
+                    <span><strong>{{ tx.description }}</strong><small>{{ tx.get_transaction_type_display }} &middot; {{ tx.created_at|date:"j M Y" }}</small></span>
+                    <span class="activity-row__value{% if tx.amount > 0 %} activity-row__value--in{% endif %}">{% if tx.amount > 0 %}+{% endif %}{{ tx.amount|floatformat:2 }} TTP</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="ds-empty-state">
+                <p class="ds-empty-state__title">No tokens yet</p>
+                <p>Tokens appear here once a collector completes your first pickup.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

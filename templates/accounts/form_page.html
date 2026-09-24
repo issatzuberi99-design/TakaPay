@@ -1,22 +1,116 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<section class="form-page">
-    <p class="eyebrow">TakaPay accounts</p>
-    <h1>{{ heading }}</h1>
-    <p class="form-intro">{{ intro }}</p>
-    <form method="post" class="account-form">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        {% for field in form %}
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {{ field.errors }}
-            {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
-        {% endfor %}
-        <button class="button button-primary" type="submit">{{ submit_label }}</button>
-    </form>
-    {% if request.resolver_match.url_name == "register" %}
-        <p class="form-intro">Interested in collecting? <a class="text-link" href="{% url 'collector_register' %}">Apply as a collector</a></p>
-    {% endif %}
+{% with name=request.resolver_match.url_name %}
+<section class="auth-split">
+    <aside class="auth-aside">
+        <img class="auth-aside__photo" src="{% static 'images/landing/hero-zanzibar-street.jpg' %}" alt="" loading="lazy">
+        <div class="auth-aside__content">
+            {% if name == "register" %}
+                <h2>Turn waste into value.</h2>
+                <ul class="auth-points">
+                    <li>Report recyclables from your phone</li>
+                    <li>A verified collector picks them up</li>
+                    <li>Earn TakaPay Tokens to redeem or cash out</li>
+                </ul>
+            {% elif name == "collector_register" %}
+                <h2>Collecting is work that pays.</h2>
+                <ul class="auth-points">
+                    <li>Accept collection requests</li>
+                    <li>Confirm the actual quantities</li>
+                    <li>Start after a quick verification</li>
+                </ul>
+            {% else %}
+                <h2>Waste as Opportunity.</h2>
+                <p>Log in to report waste, follow your collections and spend your tokens.</p>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="auth-main">
+        <div class="auth-card">
+            <h1>{{ heading }}</h1>
+            <p class="auth-intro">{{ intro }}</p>
+
+            <form method="post" class="auth-form" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="ds-alert ds-alert--error auth-form__wide" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    {% if field.name == "identification_reference" %}
+                        <h2 class="auth-section auth-form__wide">Verification details</h2>
+                    {% endif %}
+                    <div class="ds-form-field{% if field.errors %} ds-form-field--error{% endif %}{% if field.name == 'first_name' or field.name == 'last_name' %} auth-form__half{% else %} auth-form__wide{% endif %}">
+                        {% if field.widget_type == "checkbox" %}
+                            <div class="check-row">
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            </div>
+                        {% else %}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="ds-required" aria-hidden="true">*</span>{% endif %}</label>
+                            {{ field }}
+                        {% endif %}
+                        {% if field.help_text %}<div class="ds-help">{{ field.help_text }}</div>{% endif %}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+
+                <button class="ds-button ds-button--primary auth-submit auth-form__wide" type="submit">{{ submit_label }}</button>
+            </form>
+
+            <div class="auth-links">
+                {% if name == "register" %}
+                    <p>Already have an account? <a class="text-link" href="{% url 'login' %}">Log in</a></p>
+                    <p>Want to collect waste instead? <a class="text-link" href="{% url 'collector_register' %}">Apply as a collector</a></p>
+                {% elif name == "collector_register" %}
+                    <p>Already registered? <a class="text-link" href="{% url 'login' %}">Log in</a></p>
+                    <p>Just want to recycle? <a class="text-link" href="{% url 'register' %}">Create a customer account</a></p>
+                {% else %}
+                    <p>New to TakaPay? <a class="text-link" href="{% url 'register' %}">Create an account</a></p>
+                    <p>Want to collect waste? <a class="text-link" href="{% url 'collector_register' %}">Apply as a collector</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </section>
+{% endwith %}
+
+<script>
+(function () {
+    var card = document.querySelector('.auth-card');
+    if (!card) return;
+
+    card.querySelectorAll('input[type="password"]').forEach(function (input) {
+        var wrap = document.createElement('div');
+        wrap.className = 'password-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'password-toggle';
+        btn.textContent = 'Show';
+        btn.setAttribute('aria-label', 'Show password');
+        btn.addEventListener('click', function () {
+            var reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            btn.textContent = reveal ? 'Hide' : 'Show';
+            btn.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+        });
+        wrap.appendChild(btn);
+    });
+
+    var form = card.querySelector('form');
+    var submit = form && form.querySelector('.auth-submit');
+    if (form && submit) {
+        var label = submit.textContent;
+        form.addEventListener('submit', function () {
+            setTimeout(function () { submit.disabled = true; submit.textContent = 'Please wait...'; }, 0);
+        });
+        window.addEventListener('pageshow', function () { submit.disabled = false; submit.textContent = label; });
+    }
+})();
+</script>
 {% endblock %}

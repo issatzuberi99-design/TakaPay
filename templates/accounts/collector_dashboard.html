@@ -1,3 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Collector Dashboard | TakaPay{% endblock %}
-{% block content %}<section class="placeholder-page"><p class="eyebrow">Verified collector</p><h1>Collector Dashboard</h1><p>Your collector account has been approved.</p><a class="button button-primary" href="{% url 'collections_dashboard' %}">Available Collections and My Collections</a></section>{% endblock %}
+{% block content %}
+<section class="app-page app-page--narrow">
+    <header class="app-page__header">
+        <span class="ds-badge ds-badge--success">Verified collector</span>
+        <h1>Collector dashboard</h1>
+        <p>Your account is approved. Pick up jobs, weigh the waste and confirm the actual quantity to complete each one.</p>
+    </header>
+
+    {% if available_count is not None or active_count is not None or completed_today is not None %}
+    <div class="stat-grid">
+        {% if available_count is not None %}<div class="stat"><strong>{{ available_count }}</strong><span>Open jobs</span></div>{% endif %}
+        {% if active_count is not None %}<div class="stat"><strong>{{ active_count }}</strong><span>My active jobs</span></div>{% endif %}
+        {% if completed_today is not None %}<div class="stat"><strong>{{ completed_today }}</strong><span>Completed today</span></div>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="ds-card">
+        <h2>Collections</h2>
+        <p>Browse open jobs near you, or continue the ones you have already accepted.</p>
+        <a class="ds-button ds-button--primary" href="{% url 'collections_dashboard' %}">Open collections</a>
+    </div>
+
+    <div class="app-section">
+        <h2>How a collection works</h2>
+        <ol class="how-list">
+            <li><span><strong>Accept an open job.</strong> It moves into My collections.</span></li>
+            <li><span><strong>Collect and weigh the waste.</strong> Count pieces if the category is priced per piece.</span></li>
+            <li><span><strong>Confirm the actual quantity.</strong> This completes the job and settles rewards.</span></li>
+        </ol>
+    </div>
+</section>
+{% endblock %}

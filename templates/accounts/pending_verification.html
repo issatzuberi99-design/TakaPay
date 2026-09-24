@@ -1,9 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Application pending | TakaPay{% endblock %}
+{% block title %}Collector application | TakaPay{% endblock %}
 {% block content %}
-<section class="placeholder-page">
-    <p class="eyebrow">Collector application</p>
-    <h1>Application awaiting verification</h1>
-    <p>Your collector account is not yet approved for collection jobs. We will update your application after review.</p>
+<section class="app-page app-page--narrow">
+    {% if application_status == "rejected" %}
+        <header class="app-page__header">
+            <span class="ds-badge ds-badge--danger">Not approved</span>
+            <h1>Application not approved</h1>
+            <p>We could not approve your collector application. Contact the TakaPay team to find out why or to apply again.</p>
+        </header>
+        <div class="ds-actions">
+            <a class="ds-button ds-button--secondary" href="{% url 'home' %}">Back home</a>
+        </div>
+    {% else %}
+        <header class="app-page__header">
+            <span class="ds-badge ds-badge--warning">Under review</span>
+            <h1>Application awaiting verification</h1>
+            <p>Your collector account is not yet approved for collection jobs. We will update your application after review.</p>
+        </header>
+
+        <ol class="status-steps" aria-label="Application progress">
+            <li class="is-done">
+                <strong>Application submitted</strong>
+                <span>We have your details.</span>
+            </li>
+            <li class="is-current" aria-current="step">
+                <strong>Review in progress</strong>
+                <span>An admin is checking your application.</span>
+            </li>
+            <li class="is-upcoming">
+                <strong>Approved</strong>
+                <span>Collection jobs unlock on your dashboard.</span>
+            </li>
+        </ol>
+
+        <div class="ds-alert ds-alert--info" role="status">
+            You do not need to submit anything else. Check back here to see when your status changes.
+        </div>
+
+        <div class="ds-actions">
+            <a class="ds-button ds-button--secondary" href="{{ request.path }}">Check status</a>
+        </div>
+    {% endif %}
 </section>
 {% endblock %}
