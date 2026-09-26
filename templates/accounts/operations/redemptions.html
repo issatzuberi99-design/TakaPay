@@ -1,6 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Reward Redemptions | TakaPay Admin{% endblock %}
-{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Rewards Store</p><h1>Redemption Activity</h1>
-    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Date</th><th>Customer</th><th>Reward</th><th>Tokens</th><th>Status</th></tr></thead>
-    <tbody>{% for redemption in redemptions %}<tr><td>{{ redemption.created_at|date:"M j, Y H:i" }}</td><th>{{ redemption.customer.username }}</th><td>{{ redemption.reward.name }}</td><td>{{ redemption.token_amount }}</td><td>{{ redemption.get_status_display }}</td></tr>{% empty %}<tr><td colspan="5">No reward redemptions yet.</td></tr>{% endfor %}</tbody></table></div>
+{% block content %}<section class="admin-dashboard">
+    <div class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'admin_rewards' %}">Back to rewards</a>
+        <p class="eyebrow">TakaPay Admin &middot; Rewards Store</p>
+        <h1>Redemption Activity</h1>
+    </div>
+    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Date</th><th>Customer</th><th>Reward</th><th>Tokens</th><th>Status</th></tr></thead><tbody>
+    {% for redemption in redemptions %}<tr>
+        <td>{{ redemption.created_at|date:"M j, Y H:i" }}</td>
+        <th>{{ redemption.customer.username }}</th>
+        <td>{{ redemption.reward.name }}</td>
+        <td>{{ redemption.token_amount }}</td>
+        <td><span class="ds-badge ds-badge--{% if redemption.status == 'completed' %}success{% elif redemption.status == 'pending' %}warning{% else %}danger{% endif %}">{{ redemption.get_status_display }}</span></td>
+    </tr>{% empty %}<tr><td colspan="5">No reward redemptions yet.</td></tr>{% endfor %}
+    </tbody></table></div>
 </section>{% endblock %}

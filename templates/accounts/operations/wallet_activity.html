@@ -1,4 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Wallet Activity | TakaPay{% endblock %}
-{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Token Economy</p><h1>Wallet Activity</h1><p class="dashboard-intro">Ledger-derived token activity and collection reward snapshots.</p>
-<div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Details</th><th>Reward basis</th><th>Amount</th></tr></thead><tbody>{% for transaction in transactions %}<tr><td>{{ transaction.created_at|date:"M j, Y H:i" }}</td><th>{{ transaction.wallet.user.username }}</th><td>{{ transaction.get_transaction_type_display }}</td><td>{{ transaction.description }}{% if transaction.reference %}<br><small>{{ transaction.reference }}</small>{% endif %}</td><td>{% if transaction.collection_reward_unit %}{{ transaction.collection_reward_material }} · {{ transaction.collection_reward_quantity }} {{ transaction.get_collection_reward_unit_display }} × {{ transaction.collection_reward_rate }}{% else %}—{% endif %}</td><td>{{ transaction.amount }}</td></tr>{% empty %}<tr><td colspan="6">No wallet transactions yet.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}
+{% block content %}<section class="admin-dashboard">
+    <div class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+        <p class="eyebrow">TakaPay Admin &middot; Token Economy</p>
+        <h1>Wallet Activity</h1>
+        <p class="dashboard-intro">Ledger-derived token activity and collection reward snapshots.</p>
+    </div>
+    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Details</th><th>Reward basis</th><th>Amount</th></tr></thead><tbody>
+    {% for transaction in transactions %}<tr>
+        <td>{{ transaction.created_at|date:"M j, Y H:i" }}</td>
+        <th>{{ transaction.wallet.user.username }}</th>
+        <td><span class="ds-badge ds-badge--{% if transaction.transaction_type == 'collection_reward' %}success{% elif transaction.transaction_type == 'reward_redemption' %}info{% elif transaction.transaction_type == 'cashout' %}warning{% else %}neutral{% endif %}">{{ transaction.get_transaction_type_display }}</span></td>
+        <td>{{ transaction.description }}{% if transaction.reference %}<br><small>{{ transaction.reference }}</small>{% endif %}</td>
+        <td>{% if transaction.collection_reward_unit %}{{ transaction.collection_reward_material }} &middot; {{ transaction.collection_reward_quantity }} {{ transaction.get_collection_reward_unit_display }} &times; {{ transaction.collection_reward_rate }}{% else %}&mdash;{% endif %}</td>
+        <td{% if transaction.amount > 0 %} class="amount-positive"{% endif %}>{% if transaction.amount > 0 %}+{% endif %}{{ transaction.amount }}</td>
+    </tr>{% empty %}<tr><td colspan="6">No wallet transactions yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+</section>{% endblock %}

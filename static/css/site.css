@@ -15,6 +15,8 @@
 .brand em { color: var(--color-brand-green); font-style: italic; }
 nav { align-items: center; display: flex; gap: 24px; font-family: var(--font-family); font-size: .85rem; }
 nav a:hover, .text-link:hover { color: var(--coral); }
+.site-nav__button { min-height: 2.75rem; padding: var(--space-3) var(--space-4); }
+.site-nav__button:hover { color: var(--color-primary); }
 .nav-button { border-radius: var(--radius-sm); font-family: var(--font-family); font-size: var(--font-size-button); }
 .nav-button { min-height: 2.75rem; padding: var(--space-3) var(--space-5); }
 .hero { margin: 0 auto; max-width: 1180px; padding: 100px 28px 130px; }
@@ -88,7 +90,7 @@ nav button { cursor: pointer; }
 .placeholder-page p:not(.eyebrow) { color: var(--muted); font-family: var(--font-family); line-height: 1.6; margin-bottom: 30px; }
 @media (max-width: 700px) {
     .site-header { align-items: flex-start; flex-direction: column; gap: 20px; }
-    nav { flex-wrap: wrap; gap: 14px; }
+    nav { flex-wrap: wrap; gap: var(--space-2); }
     .hero { padding-top: 70px; }
     .flow-grid { grid-template-columns: repeat(2, 1fr); }
     .reward-grid { grid-template-columns: 1fr; }
@@ -145,7 +147,7 @@ nav button { cursor: pointer; }
 .activity-bar-track { align-items: flex-end; background: var(--color-surface-muted); display: flex; height: 112px; justify-content: center; width: 100%; }
 .activity-bar { background: var(--coral); display: block; min-height: 0; width: 72%; }
 .activity-count { color: var(--muted); }
-.activity-day time { color: var(--muted); white-space: nowrap; }
+.activity-day time { color: var(--muted); display: block; min-width: 1.25rem; text-align: center; white-space: nowrap; }
 .dashboard-metrics-list { margin: 18px 0 0; }
 .dashboard-metrics-list div, .dashboard-ranked-list li { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 12px; justify-content: space-between; padding: 12px 0; }
 .dashboard-metrics-list dt { color: var(--muted); font: .85rem var(--font-family); }

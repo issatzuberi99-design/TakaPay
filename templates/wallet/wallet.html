@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Wallet | TakaPay{% endblock %}
 {% block content %}
-<section class="form-page">
-    <p class="eyebrow">Wallet</p>
-    <h1>TakaPay Tokens</h1>
-    <div class="report-item" style="margin-bottom: 24px; grid-template-columns: 1fr auto;">
-        <span>
-            <strong>Current balance</strong>
-            <small>Calculated from your transaction ledger</small>
-        </span>
-        <span class="report-status">{{ wallet.balance }} TTP</span>
-    </div>
-    <div class="hero-actions">
-        <a class="button button-primary" href="{% url 'cashout_create' %}">Cash Out</a>
-        <a class="button button-secondary" href="{% url 'reward_list' %}">Browse Rewards Store</a>
-        <a class="button button-secondary" href="{% url 'cashout_history' %}">Cash-out History</a>
+<section class="app-page wallet-page">
+    <header class="app-page__header wallet-page__header">
+        <div><p class="eyebrow">Your wallet</p><h1>TakaPay Tokens</h1><p>Track the value earned from your recycling activity.</p></div>
+        <div class="wallet-page__actions">
+            <a class="ds-button ds-button--primary" href="{% url 'cashout_create' %}">Cash out</a>
+            <a class="ds-button ds-button--secondary" href="{% url 'reward_list' %}">Browse rewards</a>
+            <a class="ds-button ds-button--secondary" href="{% url 'cashout_history' %}">Cash-out history</a>
+        </div>
+    </header>
+
+    <div class="wallet-panel wallet-page__balance">
+        <div><p class="wallet-panel__label">Available balance</p><p class="wallet-panel__amount">{{ wallet.balance|floatformat:2 }}<span>TTP</span></p></div>
+        <p class="wallet-panel__note">Your balance is calculated from your transaction ledger.</p>
     </div>
 
-    {% if transactions %}
-        <div class="report-list">
-            {% for transaction in transactions %}
-                <div class="report-item">
-                    <span>
-                        <strong>{{ transaction.get_transaction_type_display }}</strong>
-                        <small>{{ transaction.description }}{% if transaction.collection_reward_unit %} · {{ transaction.collection_reward_quantity }} {{ transaction.get_collection_reward_unit_display }} × {{ transaction.collection_reward_rate }} per unit{% endif %}</small>
-                    </span>
-                    <span>
-                        <strong class="{% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
-                            {% if transaction.amount > 0 %}+{% endif %}{{ transaction.amount }}
-                        </strong>
-                        <small>{{ transaction.created_at|date:"M d, Y H:i" }}</small>
-                    </span>
-                    <span class="report-status">{{ transaction.reference|default:"Ledger entry" }}</span>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="empty-state">No transactions yet. Your wallet will update after waste collections are completed.</p>
-    {% endif %}
+    <section class="wallet-history" aria-labelledby="wallet-history-title">
+        <div class="wallet-history__heading"><div><h2 id="wallet-history-title">Transaction history</h2><p>Your latest token movements.</p></div><span class="ds-badge">{{ page_obj.paginator.count }} entries</span></div>
+        {% if transactions %}
+            <ul class="activity-list wallet-history__list">
+                {% for transaction in transactions %}
+                <li class="activity-row wallet-history__row">
+                    <span class="wallet-history__details"><strong>{{ transaction.get_transaction_type_display }}</strong><small>{{ transaction.description }}{% if transaction.collection_reward_unit %} · {{ transaction.collection_reward_quantity }} {{ transaction.get_collection_reward_unit_display }} × {{ transaction.collection_reward_rate }} per unit{% endif %}</small><small>{{ transaction.created_at|date:"j M Y · H:i" }}{% if transaction.reference %} · {{ transaction.reference }}{% endif %}</small></span>
+                    <span class="activity-row__value{% if transaction.amount > 0 %} activity-row__value--in{% else %} activity-row__value--out{% endif %}">{% if transaction.amount > 0 %}+{% endif %}{{ transaction.amount|floatformat:2 }} <small>TTP</small></span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="history-pagination" aria-label="Wallet history pages">
+                {% if page_obj.has_previous %}<a class="ds-button ds-button--secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% else %}<span class="ds-button ds-button--secondary" aria-disabled="true">Previous</span>{% endif %}
+                <p class="history-pagination__label">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>
+                {% if page_obj.has_next %}<a class="ds-button ds-button--secondary" href="?page={{ page_obj.next_page_number }}">Next</a>{% else %}<span class="ds-button ds-button--secondary" aria-disabled="true">Next</span>{% endif %}
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="ds-empty-state"><p class="ds-empty-state__title">No transactions yet</p><p>Your wallet will update after a waste collection is completed.</p><a class="ds-button ds-button--primary" href="{% url 'waste_report_create' %}">Report waste</a></div>
+        {% endif %}
+    </section>
 </section>
 {% endblock %}

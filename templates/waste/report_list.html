@@ -1,27 +1,41 @@
 {% extends "base.html" %}
 {% block title %}My Reports | TakaPay{% endblock %}
 {% block content %}
-<section class="placeholder-page report-list-page">
-    <p class="eyebrow">Customer reporting</p>
-    <div class="section-title-row"><h1>My Reports</h1><a class="button button-primary" href="{% url 'waste_report_create' %}">Report New Waste</a></div>
+<section class="app-page">
+    <div class="section-title-row">
+        <div>
+            <p class="eyebrow">Customer reporting</p>
+            <h1>My Reports</h1>
+        </div>
+        <a class="ds-button ds-button--primary" href="{% url 'waste_report_create' %}">Report New Waste</a>
+    </div>
+
     {% if reports %}
-        <div class="report-list">
+        <div class="activity-list app-section">
             {% for report in reports %}
-                <a class="report-item" href="{% url 'waste_report_detail' report.id %}">
-                    <span><strong>{{ report.category.name }}</strong><small>{{ report.created_at|date:"M j, Y" }}</small></span>
-                    <span><strong>{% if report.category.reward_unit == "piece" %}{{ report.estimated_piece_count }} pieces{% else %}{{ report.estimated_weight }} {{ report.get_weight_unit_display }}{% endif %}</strong><small>{% if report.latitude and report.longitude %}Location captured{% else %}No location{% endif %}</small></span>
-                    <span class="report-status">
-                        {% if report.collection_request %}
-                            {{ report.collection_request.get_status_display }}
-                        {% else %}
-                            {{ report.get_status_display }}
-                        {% endif %}
+                <a class="activity-row" href="{% url 'waste_report_detail' report.id %}">
+                    <span>
+                        <strong>{{ report.category.name }}</strong>
+                        <small>
+                            {{ report.created_at|date:"M j, Y" }} &middot;
+                            {% if report.category.reward_unit == "piece" %}{{ report.estimated_piece_count }} pieces{% else %}{{ report.estimated_weight }} {{ report.get_weight_unit_display }}{% endif %}
+                            {% if not report.latitude %} &middot; No location{% endif %}
+                        </small>
                     </span>
+                    {% if report.collection_request %}
+                        <span class="ds-badge ds-badge--{% if report.collection_request.status == 'completed' %}success{% elif report.collection_request.status == 'accepted' %}info{% elif report.collection_request.status == 'available' %}neutral{% else %}danger{% endif %}">{{ report.collection_request.get_status_display }}</span>
+                    {% else %}
+                        <span class="ds-badge ds-badge--{% if report.status == 'verified' or report.status == 'collected' %}success{% elif report.status == 'cancelled' %}danger{% else %}warning{% endif %}">{{ report.get_status_display }}</span>
+                    {% endif %}
                 </a>
             {% endfor %}
         </div>
     {% else %}
-        <p class="empty-state">You have not submitted a waste report yet.</p>
+        <div class="ds-empty-state app-section">
+            <p class="ds-empty-state__title">No reports yet</p>
+            <p>Report your first pile of recyclables and a collector will pick it up.</p>
+            <a class="ds-button ds-button--primary" href="{% url 'waste_report_create' %}">Report waste</a>
+        </div>
     {% endif %}
 </section>
 {% endblock %}

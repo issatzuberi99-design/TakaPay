@@ -1,22 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Complete Collection | TakaPay{% endblock %}
 {% block content %}
-<section class="placeholder-page form-page">
-    <p class="eyebrow">Collection completion</p>
-    <h1>Complete collection</h1>
-    <form method="post" enctype="multipart/form-data">
+<section class="app-page app-page--narrow">
+    <div class="app-page__header">
+        <p class="eyebrow">Collection completion</p>
+        <h1>Complete collection</h1>
+        <p>Enter the verified quantity and upload proof before closing this collection.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="ds-form">
         {% csrf_token %}
-        {{ form.non_field_errors }}
+        {% if form.non_field_errors %}
+            <div class="ds-alert ds-alert--error" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
         {% for field in form %}
-            <div class="form-field">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="ds-form-field{% if field.errors %} ds-form-field--error{% endif %}">
+                <label class="ds-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="ds-required" aria-hidden="true">*</span>{% endif %}</label>
                 {{ field }}
                 {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
-                {% for error in field.errors %}<p class="error-message">{{ error }}</p>{% endfor %}
+                {% for error in field.errors %}<p class="ds-error">{{ error }}</p>{% endfor %}
             </div>
         {% endfor %}
-        <button class="button button-primary" type="submit">Complete collection</button>
-        <a class="button button-secondary" href="{% url 'collection_detail' collection.id %}">Cancel</a>
+        <div class="ds-actions">
+            <button class="ds-button ds-button--primary" type="submit">Complete collection</button>
+            <a class="ds-button ds-button--secondary" href="{% url 'collection_detail' collection.id %}">Cancel</a>
+        </div>
     </form>
 </section>
 {% endblock %}

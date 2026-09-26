@@ -70,6 +70,19 @@ class AdminAnalyticsDashboardTests(TestCase):
         self.assertEqual(admin_index.status_code, 200)
         self.assertContains(admin_index, "Open TakaPay Analytics Dashboard")
 
+    def test_dashboard_shows_pending_collector_applications(self):
+        pending_user = User.objects.create_user(username="dashboard_collector", role=User.Role.COLLECTOR)
+        CollectorProfile.objects.create(
+            user=pending_user,
+            identification_reference="DASH-ID-1",
+            address="Stone Town",
+        )
+        self.client.force_login(self.admin)
+        response = self.client.get(self.url)
+        self.assertContains(response, "Collector applications")
+        self.assertContains(response, "dashboard_collector")
+        self.assertContains(response, "View all applications")
+
     def test_empty_dashboard_displays_clean_empty_states(self):
         self.client.force_login(self.admin)
         response = self.client.get(self.url)

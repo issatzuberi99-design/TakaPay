@@ -1,35 +1,30 @@
 <header class="site-header">
     <a class="ds-wordmark brand" href="{% url 'home' %}" aria-label="TakaPay home"><span>Taka</span><em>Pay</em></a>
     <nav aria-label="Main navigation">
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'marketplace' %}">Recyclable Materials Marketplace</a>
         {% if user.is_authenticated %}
-            {% if user.role == "admin" or user.is_staff %}
-                <a href="{% url 'admin_dashboard' %}">TakaPay Admin Dashboard</a>
-                <a href="{% url 'admin_token_rates' %}">Token Rates</a>
-                <a href="{% url 'marketplace_preparation' %}">Marketplace Preparation</a>
-                <a href="{% url 'admin_rewards' %}">Rewards</a>
+            {% if user.role == "admin" or user.is_staff or user.is_superuser %}
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'admin_analytics_dashboard' or request.resolver_match.url_name == 'admin_dashboard' %}aria-current="page"{% endif %} href="{% url 'admin_analytics_dashboard' %}">Overview</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'admin_collection_requests' or request.resolver_match.url_name == 'admin_collection_history' %}aria-current="page"{% endif %} href="{% url 'admin_collection_requests' %}">Collections</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'marketplace_preparation' or request.resolver_match.url_name == 'marketplace_preparation_edit' %}aria-current="page"{% endif %} href="{% url 'marketplace_preparation' %}">Materials</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'admin_cashout_requests' or request.resolver_match.url_name == 'admin_economics' %}aria-current="page"{% endif %} href="{% url 'admin_cashout_requests' %}">Finance</a>
             {% elif user.role == "collector" %}
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'collections_dashboard' %}">Available Collections</a>
-                <a href="{% url 'collections_dashboard' %}#my-collections">My Collections</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'collections_dashboard' or request.resolver_match.url_name == 'collection_detail' %}aria-current="page"{% endif %} href="{% url 'collections_dashboard' %}">Collection jobs</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'collector_payout_create' %}aria-current="page"{% endif %} href="{% url 'collector_payout_create' %}">Payout</a>
             {% else %}
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'wallet' %}">Wallet</a>
-                <a href="{% url 'reward_list' %}">Rewards Store</a>
-                <a href="{% url 'redemption_history' %}">Redemption History</a>
-                <a href="{% url 'cashout_create' %}">Cash Out</a>
-                <a href="{% url 'cashout_history' %}">Cash-out History</a>
-                <a href="{% url 'waste_report_create' %}">Report Waste</a>
-                <a href="{% url 'waste_report_list' %}">My Reports</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'waste_report_create' %}aria-current="page"{% endif %} href="{% url 'waste_report_create' %}">Report waste</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'waste_report_list' or request.resolver_match.url_name == 'waste_report_detail' %}aria-current="page"{% endif %} href="{% url 'waste_report_list' %}">My reports</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'wallet' or request.resolver_match.url_name == 'cashout_create' or request.resolver_match.url_name == 'cashout_history' %}aria-current="page"{% endif %} href="{% url 'wallet' %}">Wallet</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'reward_list' or request.resolver_match.url_name == 'reward_detail' or request.resolver_match.url_name == 'redemption_history' %}aria-current="page"{% endif %} href="{% url 'reward_list' %}">Rewards</a>
+                <a class="site-nav__link" {% if request.resolver_match.url_name == 'marketplace' or request.resolver_match.url_name == 'marketplace_material_detail' or request.resolver_match.url_name == 'buyer_request_create' %}aria-current="page"{% endif %} href="{% url 'marketplace' %}">Marketplace</a>
             {% endif %}
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button class="ds-button ds-button--primary nav-button" type="submit">Logout</button>
+                <button class="ds-button ds-button--primary nav-button" type="submit">Sign out</button>
             </form>
         {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            <a class="ds-button ds-button--primary nav-button" href="{% url 'register' %}">Register</a>
+            <a class="site-nav__link" href="{% url 'marketplace' %}">Marketplace</a>
+            <a class="site-nav__link" href="{% url 'login' %}">Sign in</a>
+            <a class="ds-button ds-button--primary nav-button" href="{% url 'register' %}">Get started</a>
         {% endif %}
     </nav>
 </header>

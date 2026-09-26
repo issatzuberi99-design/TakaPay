@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -14,7 +15,8 @@ def available_materials():
 
 
 def marketplace_list(request):
-    return render(request, "marketplace/material_list.html", {"materials": available_materials()})
+    page_obj = Paginator(available_materials(), 12).get_page(request.GET.get("page"))
+    return render(request, "marketplace/material_list.html", {"materials": page_obj.object_list, "page_obj": page_obj})
 
 
 def material_detail(request, material_id):

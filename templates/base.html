@@ -4,14 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0d5c63">
+    <meta name="theme-color" content="#0F766E">
     <meta name="description" content="TakaPay turns recyclable waste into value in Zanzibar.">
     <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/pwa/icon-192.png?v=20260926' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/pwa/icon-180.png?v=20260926' %}">
     <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     <link rel="stylesheet" href="{% static 'css/layouts.css' %}">
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app-ui.css' %}?v=20260926">
     {% block page_styles %}{% endblock %}
     <title>{% block title %}TakaPay{% endblock %}</title>
 </head>

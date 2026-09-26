@@ -6,6 +6,8 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.dateparse import parse_date
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.db.models import Sum
 
 from .analytics import dashboard_context
 from .decorators import approved_collector_required, platform_admin_required
@@ -23,10 +25,15 @@ from .operations_forms import (
     MaterialRateForm,
     RewardOperationsForm,
     TokenRateFormSet,
+    CashOutRateForm,
+    WasteCategoryCreateForm,
 )
 from .services import set_collector_verification
 from apps.cashout.models import CashOutRequest
+from apps.cashout.models import CashOutRate
 from apps.collections.models import CollectionRequest
+from apps.wallet.models import Wallet
+from apps.waste.models import WasteReport
 from apps.marketplace.models import BuyerRequest, MarketplaceMaterial
 from apps.marketplace.services import transition_buyer_request
 from apps.wallet.models import WalletTransaction
@@ -35,21 +42,40 @@ from apps.waste.models import WasteCategory
 from apps.economics.models import CollectorBonus, CollectorPayout, CollectorWallet, EconomicPolicy, EconomicSettlement, EconomicSetting, MaterialRate
 
 
+MODEL_BACKEND = "django.contrib.auth.backends.ModelBackend"
+
+
+def _safe_next_url(request):
+    """Return ?next=... only when it points back to this site."""
+    target = request.GET.get("next", "")
+    if target and url_has_allowed_host_and_scheme(
+        target, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return target
+    return ""
+
+
 def register(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
     form = CustomerRegistrationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Account created successfully.")
-        return redirect("login")
+        user = form.save()
+        login(request, user, backend=MODEL_BACKEND)
+        messages.success(request, "Welcome to TakaPay! Your account is ready.")
+        return redirect("dashboard")
     return render(request, "accounts/register.html", {"form": form})
 
 
 def collector_register(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
     form = CollectorRegistrationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Your collector application has been submitted and is awaiting verification.")
-        return redirect("login")
+        user = form.save()
+        login(request, user, backend=MODEL_BACKEND)
+        messages.success(request, "Application submitted. We will review it and update you here.")
+        return redirect("dashboard")
     return render(request, "accounts/collector_register.html", {"form": form})
 
 
@@ -60,7 +86,7 @@ def login_view(request):
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
         messages.success(request, "Welcome to TakaPay.")
-        return redirect("dashboard")
+        return redirect(_safe_next_url(request) or "dashboard")
     return render(request, "accounts/login.html", {"form": form})
 
 
@@ -68,12 +94,31 @@ def login_view(request):
 def dashboard(request):
     if request.user.role == User.Role.COLLECTOR:
         profile = getattr(request.user, "collector_profile", None)
-        if profile is None or profile.verification_status != profile.VerificationStatus.APPROVED:
-            return render(request, "accounts/pending_verification.html")
+        status = profile.verification_status if profile else CollectorProfile.VerificationStatus.PENDING
+        if status != CollectorProfile.VerificationStatus.APPROVED:
+            return render(request, "accounts/pending_verification.html", {"application_status": status})
         return redirect("collections_dashboard")
     if request.user.role == User.Role.ADMIN:
         return redirect("admin_analytics_dashboard")
-    return render(request, "accounts/customer_dashboard.html")
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    recent_reports = (
+        WasteReport.objects.filter(customer=request.user)
+        .select_related("category")
+        .order_by("-created_at")[:5]
+    )
+    total_recycled_kg = CollectionRequest.objects.filter(
+        waste_report__customer=request.user,
+        status=CollectionRequest.Status.COMPLETED,
+        weight_unit=WasteReport.WeightUnit.KILOGRAMS,
+    ).aggregate(total=Sum("actual_weight"))["total"]
+
+    return render(request, "accounts/customer_dashboard.html", {
+        "wallet": wallet,
+        "recent_reports": recent_reports,
+        "recent_transactions": wallet.transactions.all()[:5],
+        "total_recycled_kg": total_recycled_kg,
+    })
 
 
 @approved_collector_required
@@ -107,12 +152,18 @@ def admin_dashboard(request):
 @platform_admin_required
 def admin_token_rates(request):
     queryset = WasteCategory.objects.all().order_by("name")
+    category_form = WasteCategoryCreateForm(request.POST or None, prefix="category")
+    if request.method == "POST" and request.POST.get("form_type") == "category":
+        if category_form.is_valid():
+            category_form.save()
+            messages.success(request, "Waste category created.")
+            return redirect("admin_token_rates")
     formset = TokenRateFormSet(request.POST or None, queryset=queryset, prefix="rates")
     if request.method == "POST" and formset.is_valid():
         formset.save()
         messages.success(request, "Token rates updated.")
         return redirect("admin_token_rates")
-    return render(request, "accounts/operations/token_rates.html", {"formset": formset})
+    return render(request, "accounts/operations/token_rates.html", {"formset": formset, "category_form": category_form})
 
 
 @platform_admin_required
@@ -167,7 +218,7 @@ def admin_redemptions(request):
 
 @platform_admin_required
 def admin_economics(request, section="overview"):
-    valid_sections = {"overview", "policies", "rates", "bonuses", "wallets", "payouts", "settlements", "settings"}
+    valid_sections = {"overview", "policies", "rates", "bonuses", "wallets", "payouts", "settlements", "settings", "cashout-rates"}
     if section not in valid_sections:
         section = "overview"
     forms = {
@@ -175,10 +226,11 @@ def admin_economics(request, section="overview"):
         "rate": MaterialRateForm(prefix="rate"),
         "bonus": CollectorBonusForm(prefix="bonus"),
         "settings": EconomicSettingForm(instance=EconomicSetting.current(), prefix="settings"),
+        "cashout_rate": CashOutRateForm(prefix="cashout_rate"),
     }
     if request.method == "POST":
         form_key = request.POST.get("form_type")
-        form_map = {"policy": EconomicPolicyForm, "rate": MaterialRateForm, "bonus": CollectorBonusForm}
+        form_map = {"policy": EconomicPolicyForm, "rate": MaterialRateForm, "bonus": CollectorBonusForm, "cashout_rate": CashOutRateForm}
         if form_key in form_map:
             instance = None
             if form_key == "rate":
@@ -187,7 +239,9 @@ def admin_economics(request, section="overview"):
             if form.is_valid():
                 form.save()
                 messages.success(request, f"Economic {form_key} saved.")
-                return redirect("admin_economics_section", section={"policy": "policies", "rate": "rates", "bonus": "bonuses"}[form_key])
+                if form_key == "cashout_rate" and form.instance.active:
+                    CashOutRate.objects.exclude(pk=form.instance.pk).filter(active=True).update(active=False)
+                return redirect("admin_economics_section", section={"policy": "policies", "rate": "rates", "bonus": "bonuses", "cashout_rate": "cashout-rates"}[form_key])
             forms[form_key] = form
         elif form_key == "settings":
             form = EconomicSettingForm(request.POST, instance=EconomicSetting.current(), prefix="settings")
@@ -206,6 +260,7 @@ def admin_economics(request, section="overview"):
         "payouts": CollectorPayout.objects.select_related("collector", "processed_by").all(),
         "settlements": EconomicSettlement.objects.select_related("collection", "category", "policy").all(),
         "settings_record": EconomicSetting.current(),
+        "cashout_rates": CashOutRate.objects.all(),
     })
 
 

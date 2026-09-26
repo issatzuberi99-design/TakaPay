@@ -6,6 +6,7 @@ from apps.marketplace.models import MarketplaceMaterial
 from apps.rewards.models import Reward
 from apps.waste.models import WasteCategory
 from apps.economics.models import CollectorBonus, EconomicPolicy, EconomicSetting, MaterialRate
+from apps.cashout.models import CashOutRate
 
 
 class WasteCategoryRateForm(forms.ModelForm):
@@ -14,6 +15,20 @@ class WasteCategoryRateForm(forms.ModelForm):
         fields = ("reward_unit", "token_rate", "active")
         labels = {"token_rate": "Token Rate"}
         widgets = {"token_rate": forms.NumberInput(attrs={"min": "0", "step": "0.01"})}
+
+
+class WasteCategoryCreateForm(forms.ModelForm):
+    class Meta:
+        model = WasteCategory
+        fields = ("name", "reward_unit", "token_rate", "active")
+        labels = {"reward_unit": "Measurement unit", "token_rate": "Token rate"}
+        widgets = {"token_rate": forms.NumberInput(attrs={"min": "0", "step": "0.01"})}
+
+    def clean_name(self):
+        name = self.cleaned_data["name"].strip()
+        if WasteCategory.objects.filter(name__iexact=name).exists():
+            raise forms.ValidationError("A waste category with this name already exists.")
+        return name
 
 
 TokenRateFormSet = modelformset_factory(
@@ -93,3 +108,13 @@ class EconomicSettingForm(forms.ModelForm):
     class Meta:
         model = EconomicSetting
         fields = ("customer_cashout_min_tokens", "collector_payout_min_tzs")
+
+
+class CashOutRateForm(forms.ModelForm):
+    class Meta:
+        model = CashOutRate
+        fields = ("tokens_per_money_unit", "money_amount", "currency", "active")
+        widgets = {
+            "tokens_per_money_unit": forms.NumberInput(attrs={"min": "0.01", "step": "0.01"}),
+            "money_amount": forms.NumberInput(attrs={"min": "0.01", "step": "0.01"}),
+        }

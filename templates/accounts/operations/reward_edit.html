@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{% if reward %}Edit Reward{% else %}Create Reward{% endif %} | TakaPay Admin{% endblock %}
-{% block content %}<section class="form-page"><p class="eyebrow">TakaPay Admin · Rewards Store</p><h1>{% if reward %}Edit {{ reward.name }}{% else %}Create reward{% endif %}</h1>
-    <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="button button-primary" type="submit">Save reward</button> <a class="button button-secondary" href="{% url 'admin_rewards' %}">Cancel</a></form>
+{% block content %}<section class="form-page">
+    <a class="admin-back-link" href="{% url 'admin_rewards' %}">Back to rewards</a>
+    <p class="eyebrow">TakaPay Admin &middot; Rewards Store</p>
+    <h1>{% if reward %}Edit {{ reward.name }}{% else %}Create reward{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data" class="admin-form bare-fields">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="ds-actions">
+            <button class="ds-button ds-button--primary" type="submit">Save reward</button>
+            <a class="ds-button ds-button--quiet" href="{% url 'admin_rewards' %}">Cancel</a>
+        </div>
+    </form>
 </section>{% endblock %}
