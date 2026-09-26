@@ -2,10 +2,23 @@
 {% block title %}Rewards Store Management | TakaPay Admin{% endblock %}
 {% block content %}
 <section class="admin-dashboard">
-    <p class="eyebrow">TakaPay Admin · Rewards Store</p><h1>Rewards</h1>
-    <p class="dashboard-intro">Manage customer rewards and review token redemptions. These do not affect recyclable material inventory.</p>
-    <p><a class="button button-primary" href="{% url 'admin_reward_create' %}">Create reward</a> <a class="button button-secondary" href="{% url 'admin_redemptions' %}">Redemption activity</a></p>
+    <div class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+        <p class="eyebrow">TakaPay Admin &middot; Rewards Store</p>
+        <h1>Rewards</h1>
+        <p class="dashboard-intro">Manage customer rewards and review token redemptions. These do not affect recyclable material inventory.</p>
+        <div class="ds-actions">
+            <a class="ds-button ds-button--primary" href="{% url 'admin_reward_create' %}">Create reward</a>
+            <a class="ds-button ds-button--secondary" href="{% url 'admin_redemptions' %}">Redemption activity</a>
+        </div>
+    </div>
     <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Reward</th><th>Token cost</th><th>Inventory</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>{% for reward in rewards %}<tr><th>{{ reward.name }}</th><td>{{ reward.token_cost }}</td><td>{{ reward.inventory }}</td><td>{{ reward.active|yesno:"Active,Inactive" }}</td><td><a href="{% url 'admin_reward_edit' reward.id %}">Edit</a></td></tr>{% empty %}<tr><td colspan="5">No rewards configured.</td></tr>{% endfor %}</tbody></table></div>
+        <tbody>{% for reward in rewards %}<tr>
+            <th>{{ reward.name }}</th>
+            <td>{{ reward.token_cost }}</td>
+            <td>{{ reward.inventory }}</td>
+            <td><span class="ds-badge ds-badge--{% if reward.active %}success{% else %}neutral{% endif %}">{{ reward.active|yesno:"Active,Inactive" }}</span></td>
+            <td><a class="ds-button ds-button--quiet" href="{% url 'admin_reward_edit' reward.id %}">Edit</a></td>
+        </tr>{% empty %}<tr><td colspan="5">No rewards configured.</td></tr>{% endfor %}</tbody></table></div>
 </section>
 {% endblock %}

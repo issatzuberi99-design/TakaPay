@@ -25,9 +25,12 @@ from .operations_forms import (
     MaterialRateForm,
     RewardOperationsForm,
     TokenRateFormSet,
+    CashOutRateForm,
+    WasteCategoryCreateForm,
 )
 from .services import set_collector_verification
 from apps.cashout.models import CashOutRequest
+from apps.cashout.models import CashOutRate
 from apps.collections.models import CollectionRequest
 from apps.wallet.models import Wallet
 from apps.waste.models import WasteReport
@@ -149,12 +152,18 @@ def admin_dashboard(request):
 @platform_admin_required
 def admin_token_rates(request):
     queryset = WasteCategory.objects.all().order_by("name")
+    category_form = WasteCategoryCreateForm(request.POST or None, prefix="category")
+    if request.method == "POST" and request.POST.get("form_type") == "category":
+        if category_form.is_valid():
+            category_form.save()
+            messages.success(request, "Waste category created.")
+            return redirect("admin_token_rates")
     formset = TokenRateFormSet(request.POST or None, queryset=queryset, prefix="rates")
     if request.method == "POST" and formset.is_valid():
         formset.save()
         messages.success(request, "Token rates updated.")
         return redirect("admin_token_rates")
-    return render(request, "accounts/operations/token_rates.html", {"formset": formset})
+    return render(request, "accounts/operations/token_rates.html", {"formset": formset, "category_form": category_form})
 
 
 @platform_admin_required
@@ -209,7 +218,7 @@ def admin_redemptions(request):
 
 @platform_admin_required
 def admin_economics(request, section="overview"):
-    valid_sections = {"overview", "policies", "rates", "bonuses", "wallets", "payouts", "settlements", "settings"}
+    valid_sections = {"overview", "policies", "rates", "bonuses", "wallets", "payouts", "settlements", "settings", "cashout-rates"}
     if section not in valid_sections:
         section = "overview"
     forms = {
@@ -217,10 +226,11 @@ def admin_economics(request, section="overview"):
         "rate": MaterialRateForm(prefix="rate"),
         "bonus": CollectorBonusForm(prefix="bonus"),
         "settings": EconomicSettingForm(instance=EconomicSetting.current(), prefix="settings"),
+        "cashout_rate": CashOutRateForm(prefix="cashout_rate"),
     }
     if request.method == "POST":
         form_key = request.POST.get("form_type")
-        form_map = {"policy": EconomicPolicyForm, "rate": MaterialRateForm, "bonus": CollectorBonusForm}
+        form_map = {"policy": EconomicPolicyForm, "rate": MaterialRateForm, "bonus": CollectorBonusForm, "cashout_rate": CashOutRateForm}
         if form_key in form_map:
             instance = None
             if form_key == "rate":
@@ -229,7 +239,9 @@ def admin_economics(request, section="overview"):
             if form.is_valid():
                 form.save()
                 messages.success(request, f"Economic {form_key} saved.")
-                return redirect("admin_economics_section", section={"policy": "policies", "rate": "rates", "bonus": "bonuses"}[form_key])
+                if form_key == "cashout_rate" and form.instance.active:
+                    CashOutRate.objects.exclude(pk=form.instance.pk).filter(active=True).update(active=False)
+                return redirect("admin_economics_section", section={"policy": "policies", "rate": "rates", "bonus": "bonuses", "cashout_rate": "cashout-rates"}[form_key])
             forms[form_key] = form
         elif form_key == "settings":
             form = EconomicSettingForm(request.POST, instance=EconomicSetting.current(), prefix="settings")
@@ -248,6 +260,7 @@ def admin_economics(request, section="overview"):
         "payouts": CollectorPayout.objects.select_related("collector", "processed_by").all(),
         "settlements": EconomicSettlement.objects.select_related("collection", "category", "policy").all(),
         "settings_record": EconomicSetting.current(),
+        "cashout_rates": CashOutRate.objects.all(),
     })
 
 

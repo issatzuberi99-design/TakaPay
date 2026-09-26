@@ -18,12 +18,14 @@ class CollectionCompletionForm(forms.ModelForm):
             self.fields.pop("weight_unit")
             self.fields["actual_piece_count"].label = "Verified Quantity (pieces)"
             self.fields["actual_piece_count"].help_text = "Enter the collector-verified number of individual pieces."
-            self.fields["actual_piece_count"].widget.attrs.update({"min": "1", "step": "1"})
+            self.fields["actual_piece_count"].widget.attrs.update({"min": "1", "step": "1", "required": True})
         else:
             self.fields.pop("actual_piece_count")
             self.fields["actual_weight"].label = "Verified Weight"
             self.fields["weight_unit"].choices = WasteReport.WeightUnit.choices
+            self.fields["actual_weight"].widget.attrs.update({"min": "0.01", "step": "0.01", "required": True})
         self.fields["proof_photo"].required = True
+        self.fields["proof_photo"].widget.attrs["required"] = True
         self.fields["notes"].widget.attrs.update({"rows": 4})
 
     def clean_actual_weight(self):

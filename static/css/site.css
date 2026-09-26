@@ -147,7 +147,7 @@ nav button { cursor: pointer; }
 .activity-bar-track { align-items: flex-end; background: var(--color-surface-muted); display: flex; height: 112px; justify-content: center; width: 100%; }
 .activity-bar { background: var(--coral); display: block; min-height: 0; width: 72%; }
 .activity-count { color: var(--muted); }
-.activity-day time { color: var(--muted); white-space: nowrap; }
+.activity-day time { color: var(--muted); display: block; min-width: 1.25rem; text-align: center; white-space: nowrap; }
 .dashboard-metrics-list { margin: 18px 0 0; }
 .dashboard-metrics-list div, .dashboard-ranked-list li { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 12px; justify-content: space-between; padding: 12px 0; }
 .dashboard-metrics-list dt { color: var(--muted); font: .85rem var(--font-family); }

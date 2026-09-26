@@ -2,45 +2,58 @@
 {% load static %}
 {% block title %}Report Waste | TakaPay{% endblock %}
 {% block content %}
-<section class="form-page report-form-page">
-    <p class="eyebrow">Customer reporting</p>
-    <h1>Report waste</h1>
-    <p class="form-intro">Tell us about recyclable waste and share where it can be collected.</p>
+<section class="app-page app-page--narrow report-form-page">
+    <div class="app-page__header">
+        <p class="eyebrow">Customer reporting</p>
+        <h1>Report waste</h1>
+        <p>Tell us about recyclable waste and share where it can be collected.</p>
+    </div>
+
     <form method="post" enctype="multipart/form-data" class="account-form" id="waste-report-form">
         {% csrf_token %}
-        {{ form.non_field_errors }}
-        <p class="form-step">1. Select waste type</p>
-        <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
-        {{ form.category }}
-        {{ form.category.errors }}
+        {% if form.non_field_errors %}<div class="ds-alert ds-alert--error">{{ form.non_field_errors }}</div>{% endif %}
 
-        <p class="form-step">2. Describe the waste</p>
-        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-        {{ form.description }}
-        {{ form.description.errors }}
-        <div data-estimate-unit="kg">
-            <label for="{{ form.estimated_weight.id_for_label }}">Estimated Weight</label>
-            {{ form.estimated_weight }}{{ form.estimated_weight.errors }}
-            <label for="{{ form.weight_unit.id_for_label }}">Weight unit</label>
-            {{ form.weight_unit }}{{ form.weight_unit.errors }}
-        </div>
-        <div data-estimate-unit="piece">
-            <label for="{{ form.estimated_piece_count.id_for_label }}">Estimated Quantity (pieces)</label>
-            {{ form.estimated_piece_count }}{{ form.estimated_piece_count.errors }}
+        <div class="form-step-card">
+            <p class="form-step-card__title"><span>1</span>Select waste type</p>
+            <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+            {{ form.category }}
+            {{ form.category.errors }}
         </div>
 
-        <p class="form-step">3. Capture location</p>
-        <p class="location-help">GPS is captured only when you press the button. TakaPay does not continuously track you.</p>
-        <button class="button button-secondary" id="location-button" type="button">Use My Current Location</button>
-        <p id="location-status" class="location-status" aria-live="polite">Location not captured yet.</p>
-        {{ form.latitude }}{{ form.longitude }}{{ form.location_accuracy }}
-        {{ form.latitude.errors }}{{ form.longitude.errors }}{{ form.location_accuracy.errors }}
+        <div class="form-step-card">
+            <p class="form-step-card__title"><span>2</span>Describe the waste</p>
+            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+            {{ form.description }}
+            {{ form.description.errors }}
+            <div data-estimate-unit="kg">
+                <label for="{{ form.estimated_weight.id_for_label }}">Estimated Weight</label>
+                {{ form.estimated_weight }}{{ form.estimated_weight.errors }}
+                <label for="{{ form.weight_unit.id_for_label }}">Weight unit</label>
+                {{ form.weight_unit }}{{ form.weight_unit.errors }}
+            </div>
+            <div data-estimate-unit="piece">
+                <label for="{{ form.estimated_piece_count.id_for_label }}">Estimated Quantity (pieces)</label>
+                {{ form.estimated_piece_count }}{{ form.estimated_piece_count.errors }}
+            </div>
+        </div>
 
-        <p class="form-step">4. Add a photo (optional)</p>
-        <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
-        {{ form.photo }}
-        {{ form.photo.errors }}
-        <button class="button button-primary" type="submit">Submit waste report</button>
+        <div class="form-step-card">
+            <p class="form-step-card__title"><span>3</span>Capture location</p>
+            <p class="location-help">GPS is captured only when you press the button. TakaPay does not continuously track you.</p>
+            <button class="ds-button ds-button--secondary" id="location-button" type="button">Use My Current Location</button>
+            <p id="location-status" class="location-status" aria-live="polite">Location not captured yet.</p>
+            {{ form.latitude }}{{ form.longitude }}{{ form.location_accuracy }}
+            {{ form.latitude.errors }}{{ form.longitude.errors }}{{ form.location_accuracy.errors }}
+        </div>
+
+        <div class="form-step-card">
+            <p class="form-step-card__title"><span>4</span>Add a photo (optional)</p>
+            <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+            {{ form.photo }}
+            {{ form.photo.errors }}
+        </div>
+
+        <button class="ds-button ds-button--primary auth-submit" type="submit">Submit waste report</button>
     </form>
 </section>
 {{ form.category_reward_units|json_script:"category-reward-units" }}

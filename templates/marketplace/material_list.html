@@ -1,26 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Recyclable Materials Marketplace | TakaPay{% endblock %}
 {% block content %}
-<section class="catalog-page">
-    <p class="eyebrow">Recyclable Materials Marketplace</p>
-    <h1>Materials ready for their next use.</h1>
+<section class="app-page catalog-page">
+    <header class="catalog-header"><div><p class="eyebrow">Materials marketplace</p><h1>Give good materials a next life.</h1><p>Browse prepared recyclables available from local collection partners.</p></div><span class="ds-badge">{{ page_obj.paginator.count }} available</span></header>
     {% if materials %}
-        <div class="reward-grid">
+        <div class="marketplace-grid">
             {% for material in materials %}
-                <article class="reward-card">
-                    {% if material.image %}<img src="{{ material.image.url }}" alt="{{ material.name }}">{% else %}<div class="reward-placeholder" aria-hidden="true">RECYCLE</div>{% endif %}
-                    <div class="reward-card-body">
-                        <p class="eyebrow">{{ material.category.name }}</p>
+                <article class="material-card">
+                    <div class="material-card__media">
+                        {% if material.image %}<img src="{{ material.image.url }}" alt="{{ material.name }}">{% else %}<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m16 8 8-4 8 4-4 2M13 14l-5 9 5 9 2-4m20-14 5 9-5 9-2-4M20 36l4 8 4-8-2 1"/><path d="M17 10 9 23l6 3m16-16 8 13-6 3M17 34l7 4 7-4"/></svg>{% endif %}
+                    </div>
+                    <div class="material-card__body">
+                        <p class="material-card__category">{{ material.category.name }}</p>
                         <h2>{{ material.name }}</h2>
                         <p>{{ material.description|truncatewords:24 }}</p>
-                        <small class="availability">{{ material.available_quantity }} {{ material.get_unit_display }} available</small>
-                        {% if material.price_per_unit %}<small class="availability">{{ material.price_per_unit }} per {{ material.get_unit_display|lower }}</small>{% endif %}
-                        <a class="button button-secondary" href="{% url 'marketplace_material_detail' material.id %}">View details</a>
-                        <a class="button button-primary" href="{% url 'buyer_request_create' material.id %}">Request material</a>
+                        <p class="material-card__availability">{{ material.available_quantity }} {{ material.get_unit_display }} available{% if material.price_per_unit %} · {{ material.price_per_unit }} per {{ material.get_unit_display|lower }}{% endif %}</p>
+                        <div class="material-card__actions"><a class="ds-button ds-button--secondary" href="{% url 'marketplace_material_detail' material.id %}">View details</a><a class="ds-button ds-button--primary" href="{% url 'buyer_request_create' material.id %}">Request material</a></div>
                     </div>
                 </article>
             {% endfor %}
         </div>
-    {% else %}<p class="empty-state">No recyclable materials are available right now.</p>{% endif %}
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="history-pagination" aria-label="Marketplace pages">
+            {% if page_obj.has_previous %}<a class="ds-button ds-button--secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% else %}<span class="ds-button ds-button--secondary" aria-disabled="true">Previous</span>{% endif %}
+            <p class="history-pagination__label">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>
+            {% if page_obj.has_next %}<a class="ds-button ds-button--secondary" href="?page={{ page_obj.next_page_number }}">Next</a>{% else %}<span class="ds-button ds-button--secondary" aria-disabled="true">Next</span>{% endif %}
+        </nav>
+        {% endif %}
+    {% else %}<div class="ds-empty-state"><p class="ds-empty-state__title">No materials available right now</p><p>Check back soon to see the latest prepared recyclables.</p></div>{% endif %}
 </section>
 {% endblock %}

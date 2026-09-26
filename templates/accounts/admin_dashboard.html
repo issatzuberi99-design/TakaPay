@@ -14,53 +14,120 @@
         </div>
     </header>
 
-    <section class="dashboard-section" aria-labelledby="operations-heading">
-        <div class="dashboard-section-heading"><div><p class="eyebrow">Operations</p><h2 id="operations-heading">Business controls</h2></div></div>
-        <div class="dashboard-panels">
-            <article class="dashboard-panel"><h3>Waste and collections</h3><p>Review submitted reports, collection assignments, and collector verification.</p><a class="button button-primary" href="{% url 'admin_collection_requests' %}">Open Collection Requests</a><p><a href="{% url 'collector_applications' %}">Collector Applications</a> · <a href="{% url 'admin_collection_history' %}">Collection History</a></p></article>
-            <article class="dashboard-panel"><h3>Token Rates</h3><p>Set category reward unit, token rate, and active status.</p><a class="button button-primary" href="{% url 'admin_token_rates' %}">Manage Token Rates</a></article>
-            <article class="dashboard-panel"><h3>Finance</h3><p>Inspect wallet ledger and process cash-outs.</p><a class="button button-primary" href="{% url 'admin_cashout_requests' %}">Open Cash-out Requests</a><p><a href="{% url 'admin_wallet_activity' %}">Wallet Activity</a></p></article>
-            <article class="dashboard-panel"><h3>Marketplace Preparation</h3><p>Review collected material, save drafts, and explicitly publish buyer listings.</p><a class="button button-primary" href="{% url 'marketplace_preparation' %}">Open Preparation Queue</a><p><a href="{% url 'admin_published_materials' %}">Published Materials</a> · <a href="{% url 'admin_buyer_requests' %}">Buyer Requests</a></p></article>
-            <article class="dashboard-panel"><h3>Rewards Store</h3><p>Manage customer token rewards and review redemption activity. This store is separate from the public materials marketplace.</p><a class="button button-primary" href="{% url 'admin_rewards' %}">Open Rewards</a><p><a href="{% url 'admin_redemptions' %}">Redemptions</a></p></article>
-            <article class="dashboard-panel"><h3>Economics</h3><p>Configure settlement policies, material rates, collector bonuses, wallets, payouts, and thresholds.</p><a class="button button-primary" href="{% url 'admin_economics' %}">Manage Economics</a></article>
-        </div>
-    </section>
-
-    <form class="dashboard-filter" method="get" aria-label="Filter dashboard date range">
-        <label for="period">Date range</label>
+    {# Sticky jump nav + date filter, always visible so you don't have to scroll back up. #}
+    <form class="admin-quicknav" method="get" aria-label="Dashboard sections and date range">
+        <nav class="admin-quicknav__links" aria-label="Jump to section">
+            <a href="#overview">Overview</a>
+            <a href="#controls">Controls</a>
+            <a href="#waste">Waste</a>
+            <a href="#collections">Collections</a>
+            <a href="#wallet">Wallet</a>
+            <a href="#cashouts">Cash-outs</a>
+            <a href="#marketplace">Marketplace</a>
+            <a href="#activity">Activity</a>
+        </nav>
+        <label class="ds-visually-hidden" for="period">Date range</label>
         <select name="period" id="period">
             {% for value, label in period_choices %}
                 <option value="{{ value }}" {% if period == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
         </select>
         <button class="button button-primary" type="submit">Apply</button>
-        <span>Time-based metrics: {{ period_label }}</span>
     </form>
 
-    <section aria-labelledby="overview-heading">
+    <section aria-labelledby="overview-heading" id="overview">
         <div class="dashboard-section-heading">
-            <div><p class="eyebrow">Overview</p><h2 id="overview-heading">Platform at a glance</h2></div>
+            <div><p class="eyebrow">Overview &middot; {{ period_label }}</p><h2 id="overview-heading">Platform at a glance</h2></div>
         </div>
-        <div class="dashboard-kpis">
-            <article class="dashboard-kpi"><span>Total waste reports</span><strong>{{ total_waste_reports }}</strong><small>{{ period_label }}</small></article>
-            <article class="dashboard-kpi"><span>Estimated waste</span><strong>{{ estimated_waste_kg|floatformat:2 }} kg · {{ estimated_waste_pieces|floatformat:0 }} pieces</strong><small>Totals shown separately by unit</small></article>
-            <article class="dashboard-kpi"><span>Collected actual waste · verified quantity</span><strong>{{ collected_waste_kg|floatformat:2 }} kg · {{ collected_waste_pieces|floatformat:0 }} pieces</strong><small>Completed collections, units not combined</small></article>
-            <article class="dashboard-kpi"><span>Verified waste</span><strong>{{ verified_waste_kg|floatformat:2 }} kg</strong><small>Verified reports</small></article>
-            <article class="dashboard-kpi"><span>Approved collectors</span><strong>{{ approved_collectors }}</strong><small>{{ collectors_with_completions }} with completions in range</small></article>
-            <article class="dashboard-kpi"><span>Available collections</span><strong>{{ available_collections }}</strong><small>Current open queue</small></article>
-            <article class="dashboard-kpi"><span>Completed collections</span><strong>{{ completed_collections }}</strong><small>{{ period_label }}</small></article>
-            <article class="dashboard-kpi"><span>Tokens issued</span><strong>{{ tokens_issued|floatformat:2 }}</strong><small>{{ tokens_issued_for_kg|floatformat:2 }} KG-based · {{ tokens_issued_for_pieces|floatformat:2 }} PIECE-based</small></article>
-            <article class="dashboard-kpi"><span>Tokens redeemed</span><strong>{{ tokens_redeemed|floatformat:2 }}</strong><small>Reward redemption ledger entries</small></article>
-            <article class="dashboard-kpi dashboard-kpi-highlight"><span>Pending cash-outs</span><strong>{{ pending_cashouts }}</strong><small>Current queue</small></article>
-            <article class="dashboard-kpi"><span>Completed cash-outs</span><strong>{{ cashout_counts.completed }}</strong><small>Requests from {{ period_label|lower }}</small></article>
-            <article class="dashboard-kpi"><span>Active rewards</span><strong>{{ active_rewards }}</strong><small>{{ inactive_rewards }} inactive</small></article>
-            <article class="dashboard-kpi"><span>Reward redemptions</span><strong>{{ total_redemptions }}</strong><small>{{ period_label }}</small></article>
-            <article class="dashboard-kpi"><span>Active marketplace materials</span><strong>{{ active_materials }}</strong><small>{{ available_materials }} with stock available</small></article>
-            <article class="dashboard-kpi dashboard-kpi-highlight"><span>Pending buyer requests</span><strong>{{ pending_buyer_requests }}</strong><small>Current queue</small></article>
+        <div class="dashboard-kpis dashboard-kpis--headline">
+            <article class="dashboard-kpi dashboard-kpi--headline"><span>Total waste reports</span><strong>{{ total_waste_reports }}</strong><small>{{ period_label }}</small></article>
+            <article class="dashboard-kpi dashboard-kpi--headline"><span>Tokens issued</span><strong>{{ tokens_issued|floatformat:2 }}</strong><small>{{ tokens_issued_for_kg|floatformat:2 }} KG-based &middot; {{ tokens_issued_for_pieces|floatformat:2 }} PIECE-based</small></article>
+            <article class="dashboard-kpi dashboard-kpi--headline dashboard-kpi-highlight"><span>Pending cash-outs</span><strong>{{ pending_cashouts }}</strong><small>Current queue</small></article>
+            <article class="dashboard-kpi dashboard-kpi--headline dashboard-kpi-highlight"><span>Pending buyer requests</span><strong>{{ pending_buyer_requests }}</strong><small>Current queue</small></article>
+        </div>
+
+        <div class="admin-subgroup">
+            <p class="eyebrow">Waste &amp; collections</p>
+            <div class="dashboard-kpis">
+                <article class="dashboard-kpi"><span>Estimated waste</span><strong>{{ estimated_waste_kg|floatformat:2 }} kg &middot; {{ estimated_waste_pieces|floatformat:0 }} pieces</strong><small>Totals shown separately by unit</small></article>
+                <article class="dashboard-kpi"><span>Collected actual waste &middot; verified quantity</span><strong>{{ collected_waste_kg|floatformat:2 }} kg &middot; {{ collected_waste_pieces|floatformat:0 }} pieces</strong><small>Completed collections, units not combined</small></article>
+                <article class="dashboard-kpi"><span>Verified waste</span><strong>{{ verified_waste_kg|floatformat:2 }} kg</strong><small>Verified reports</small></article>
+                <article class="dashboard-kpi"><span>Approved collectors</span><strong>{{ approved_collectors }}</strong><small>{{ collectors_with_completions }} with completions in range</small></article>
+                <article class="dashboard-kpi"><span>Available collections</span><strong>{{ available_collections }}</strong><small>Current open queue</small></article>
+                <article class="dashboard-kpi"><span>Completed collections</span><strong>{{ completed_collections }}</strong><small>{{ period_label }}</small></article>
+            </div>
+        </div>
+
+        <div class="admin-subgroup">
+            <p class="eyebrow">Wallet, rewards &amp; marketplace</p>
+            <div class="dashboard-kpis">
+                <article class="dashboard-kpi"><span>Tokens redeemed</span><strong>{{ tokens_redeemed|floatformat:2 }}</strong><small>Reward redemption ledger entries</small></article>
+                <article class="dashboard-kpi"><span>Active rewards</span><strong>{{ active_rewards }}</strong><small>{{ inactive_rewards }} inactive</small></article>
+                <article class="dashboard-kpi"><span>Reward redemptions</span><strong>{{ total_redemptions }}</strong><small>{{ period_label }}</small></article>
+                <article class="dashboard-kpi"><span>Completed cash-outs</span><strong>{{ cashout_counts.completed }}</strong><small>Requests from {{ period_label|lower }}</small></article>
+                <article class="dashboard-kpi"><span>Active marketplace materials</span><strong>{{ active_materials }}</strong><small>{{ available_materials }} with stock available</small></article>
+            </div>
         </div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="waste-heading">
+    <section class="dashboard-section" aria-labelledby="controls-heading" id="controls">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Operations</p><h2 id="controls-heading">Business controls</h2></div></div>
+        <div class="admin-linkgrid">
+            <article class="admin-linkcard">
+                <h3>Waste and collections</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'admin_collection_requests' %}">Open Collection Requests</a>
+                <small><a href="{% url 'collector_applications' %}">Collector Applications</a> &middot; <a href="{% url 'admin_collection_history' %}">Collection History</a></small>
+            </article>
+            <article class="admin-linkcard">
+                <h3>Token Rates</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'admin_token_rates' %}">Manage Token Rates</a>
+            </article>
+            <article class="admin-linkcard">
+                <h3>Finance</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'admin_cashout_requests' %}">Open Cash-out Requests</a>
+                <small><a href="{% url 'admin_wallet_activity' %}">Wallet Activity</a></small>
+            </article>
+            <article class="admin-linkcard">
+                <h3>Marketplace Preparation</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'marketplace_preparation' %}">Open Preparation Queue</a>
+                <small><a href="{% url 'admin_published_materials' %}">Published Materials</a> &middot; <a href="{% url 'admin_buyer_requests' %}">Buyer Requests</a></small>
+            </article>
+            <article class="admin-linkcard">
+                <h3>Rewards Store</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'admin_rewards' %}">Open Rewards</a>
+                <small><a href="{% url 'admin_redemptions' %}">Redemptions</a></small>
+            </article>
+            <article class="admin-linkcard">
+                <h3>Economics</h3>
+                <a class="ds-button ds-button--primary" href="{% url 'admin_economics' %}">Manage Economics</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="collector-applications-heading" id="collector-applications">
+        <div class="dashboard-section-heading">
+            <div><p class="eyebrow">People &amp; access</p><h2 id="collector-applications-heading">Collector applications</h2></div>
+            <p class="dashboard-summary"><strong>{{ pending_collector_application_count }}</strong> pending</p>
+        </div>
+        <div class="dashboard-panel">
+            {% if pending_collector_applications %}
+                <div class="dashboard-table-wrap"><table class="dashboard-table">
+                    <thead><tr><th scope="col">Applicant</th><th scope="col">Contact</th><th scope="col">Applied</th><th scope="col"></th></tr></thead>
+                    <tbody>{% for profile in pending_collector_applications %}<tr>
+                        <th scope="row">{{ profile.user.get_full_name|default:profile.user.username }}</th>
+                        <td>{{ profile.user.email|default:profile.user.phone_number|default:"—" }}</td>
+                        <td>{{ profile.created_at|date:"M j, Y" }}</td>
+                        <td><a class="ds-button ds-button--quiet" href="{% url 'collector_application_detail' profile.pk %}">Inspect</a></td>
+                    </tr>{% endfor %}</tbody>
+                </table></div>
+            {% else %}
+                <p class="empty-state">No pending collector applications.</p>
+            {% endif %}
+            <p><a class="ds-button ds-button--secondary" href="{% url 'collector_applications' %}">View all applications</a></p>
+        </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="waste-heading" id="waste">
         <div class="dashboard-section-heading"><div><p class="eyebrow">Waste</p><h2 id="waste-heading">Waste activity</h2></div></div>
         <div class="dashboard-panels">
             <article class="dashboard-panel">
@@ -76,13 +143,16 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="dashboard-table-wrap">
-                        <table class="dashboard-table">
-                            <caption>Waste category totals for {{ period_label|lower }}</caption>
-                            <thead><tr><th scope="col">Category</th><th scope="col">Reports</th><th scope="col">Estimated kg</th><th scope="col">Estimated pieces</th><th scope="col">Collected kg</th><th scope="col">Collected pieces</th><th scope="col">Verified reports</th></tr></thead>
-                            <tbody>{% for category in category_activity %}<tr><th scope="row">{{ category.name }}</th><td>{{ category.report_count }}</td><td>{{ category.estimated_kg|floatformat:2 }}</td><td>{{ category.estimated_pieces|floatformat:0 }}</td><td>{{ category.collected_kg|floatformat:2 }}</td><td>{{ category.collected_pieces|floatformat:0 }}</td><td>{{ category.verified_count }}</td></tr>{% endfor %}</tbody>
-                        </table>
-                    </div>
+                    <details class="admin-details">
+                        <summary>Show full breakdown by category</summary>
+                        <div class="dashboard-table-wrap">
+                            <table class="dashboard-table">
+                                <caption>Waste category totals for {{ period_label|lower }}</caption>
+                                <thead><tr><th scope="col">Category</th><th scope="col">Reports</th><th scope="col">Estimated kg</th><th scope="col">Estimated pieces</th><th scope="col">Collected kg</th><th scope="col">Collected pieces</th><th scope="col">Verified reports</th></tr></thead>
+                                <tbody>{% for category in category_activity %}<tr><th scope="row">{{ category.name }}</th><td>{{ category.report_count }}</td><td>{{ category.estimated_kg|floatformat:2 }}</td><td>{{ category.estimated_pieces|floatformat:0 }}</td><td>{{ category.collected_kg|floatformat:2 }}</td><td>{{ category.collected_pieces|floatformat:0 }}</td><td>{{ category.verified_count }}</td></tr>{% endfor %}</tbody>
+                            </table>
+                        </div>
+                    </details>
                 {% else %}<p class="empty-state">No waste reports yet.</p>{% endif %}
             </article>
             <article class="dashboard-panel">
@@ -94,31 +164,34 @@
                             <div class="activity-day" title="{{ day.day|date:'M j, Y' }}: {{ day.report_count }} reports, {{ day.estimated_kg|floatformat:2 }} kg">
                                 <span class="activity-bar-track"><span class="activity-bar" style="height: {{ day.bar_height }}%"></span></span>
                                 <span class="activity-count">{{ day.report_count }}</span>
-                                <time datetime="{{ day.day|date:'Y-m-d' }}">{{ day.day|date:'M j' }}</time>
+                                <time datetime="{{ day.day|date:'Y-m-d' }}" aria-label="{{ day.day|date:'M j, Y' }}">{{ day.day|date:'j' }}</time>
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="dashboard-table-wrap">
-                        <table class="dashboard-table">
-                            <caption>Daily waste reports and estimated weights</caption>
-                            <thead><tr><th scope="col">Date</th><th scope="col">Reports</th><th scope="col">Estimated weight</th></tr></thead>
-                            <tbody>{% for day in daily_activity %}<tr><th scope="row">{{ day.day|date:'M j, Y' }}</th><td>{{ day.report_count }}</td><td>{{ day.estimated_kg|floatformat:2 }} kg</td></tr>{% endfor %}</tbody>
-                        </table>
-                    </div>
+                    <details class="admin-details">
+                        <summary>Show day-by-day table ({{ daily_activity|length }} days)</summary>
+                        <div class="dashboard-table-wrap">
+                            <table class="dashboard-table">
+                                <caption>Daily waste reports and estimated weights</caption>
+                                <thead><tr><th scope="col">Date</th><th scope="col">Reports</th><th scope="col">Estimated weight</th></tr></thead>
+                                <tbody>{% for day in daily_activity %}<tr><th scope="row">{{ day.day|date:'M j, Y' }}</th><td>{{ day.report_count }}</td><td>{{ day.estimated_kg|floatformat:2 }} kg</td></tr>{% endfor %}</tbody>
+                            </table>
+                        </div>
+                    </details>
                 {% else %}<p class="empty-state">No waste reports yet.</p>{% endif %}
             </article>
         </div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="collections-heading">
-        <div class="dashboard-section-heading"><div><p class="eyebrow">Collections</p><h2 id="collections-heading">Collection operations</h2></div><p class="dashboard-summary">Completion rate: <strong>{{ collection_completion_rate }}%</strong> · {{ total_collection_requests }} requests in range</p></div>
+    <section class="dashboard-section" aria-labelledby="collections-heading" id="collections">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Collections</p><h2 id="collections-heading">Collection operations</h2></div><p class="dashboard-summary">Completion rate: <strong>{{ collection_completion_rate }}%</strong> &middot; {{ total_collection_requests }} requests in range</p></div>
         <div class="dashboard-status-grid">
             {% for row in collection_status_rows %}<article class="dashboard-status-card"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
         </div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="wallet-heading">
-        <div class="dashboard-section-heading"><div><p class="eyebrow">Wallet & rewards</p><h2 id="wallet-heading">Token and reward activity</h2></div></div>
+    <section class="dashboard-section" aria-labelledby="wallet-heading" id="wallet">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Wallet &amp; rewards</p><h2 id="wallet-heading">Token and reward activity</h2></div></div>
         <div class="dashboard-panels">
             <article class="dashboard-panel">
                 <h3>Token ledger</h3>
@@ -141,15 +214,15 @@
         </div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="cashout-heading">
-        <div class="dashboard-section-heading"><div><p class="eyebrow">Cash-outs</p><h2 id="cashout-heading">Manual payout queue</h2></div><p class="dashboard-summary">{{ cashout_token_total|floatformat:2 }} tokens · {{ cashout_money_total|floatformat:2 }} requested in range</p></div>
+    <section class="dashboard-section" aria-labelledby="cashout-heading" id="cashouts">
+        <div class="dashboard-section-heading"><div><p class="eyebrow">Cash-outs</p><h2 id="cashout-heading">Manual payout queue</h2></div><p class="dashboard-summary">{{ cashout_token_total|floatformat:2 }} tokens &middot; {{ cashout_money_total|floatformat:2 }} requested in range</p></div>
         <div class="dashboard-status-grid">
             {% for row in cashout_status_rows %}<article class="dashboard-status-card{% if row.label == 'Pending' %} dashboard-status-card-highlight{% endif %}"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></article>{% endfor %}
         </div>
         <p class="dashboard-help">Cash-out requests are summarized without customer or payout destination details.</p>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="marketplace-heading">
+    <section class="dashboard-section" aria-labelledby="marketplace-heading" id="marketplace">
         <div class="dashboard-section-heading"><div><p class="eyebrow">Marketplace</p><h2 id="marketplace-heading">Materials and buyer requests</h2></div></div>
         <div class="dashboard-panels">
             <article class="dashboard-panel">
@@ -166,7 +239,7 @@
         </div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="activity-heading">
+    <section class="dashboard-section" aria-labelledby="activity-heading" id="activity">
         <div class="dashboard-section-heading"><div><p class="eyebrow">Recent activity</p><h2 id="activity-heading">Latest operations</h2></div></div>
         {% if recent_activity %}
             <div class="dashboard-table-wrap"><table class="dashboard-table">

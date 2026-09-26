@@ -10,7 +10,7 @@ from apps.wallet.models import Wallet, WalletTransaction
 from apps.marketplace.models import MarketplaceMaterial
 from apps.waste.models import WasteCategory, WasteReport
 from apps.economics.models import EconomicPolicy, MaterialRate
-from apps.economics.services import settle_collection
+from apps.economics.services import collector_wallet_for, settle_collection
 
 from .forms import CollectionCompletionForm
 from .rewards import calculate_collection_reward
@@ -25,10 +25,15 @@ def collections_dashboard(request):
     my_collections = CollectionRequest.objects.filter(
         collector=request.user,
     ).select_related("waste_report__category").order_by("-accepted_at", "-created_at")
+    wallet = collector_wallet_for(request.user)
     return render(
         request,
         "collections/dashboard.html",
-        {"available_collections": available_collections, "my_collections": my_collections},
+        {
+            "available_collections": available_collections,
+            "my_collections": my_collections,
+            "wallet": wallet,
+        },
     )
 
 
@@ -100,6 +105,14 @@ def complete_collection(request, collection_id):
         form.add_error(None, "This material has no positive token rate. Ask an administrator to configure its rate before completing the collection.")
     if request.method == "POST" and form.is_valid():
         collection = form.save(commit=False)
+        if category.reward_unit == WasteCategory.RewardUnit.KILOGRAM:
+            collection.actual_weight = form.cleaned_data["actual_weight"]
+            collection.weight_unit = form.cleaned_data["weight_unit"]
+        else:
+            collection.actual_piece_count = form.cleaned_data["actual_piece_count"]
+        collection.proof_photo = form.cleaned_data["proof_photo"]
+        collection.notes = form.cleaned_data["notes"]
+        collection.save()
         try:
             reward = calculate_collection_reward(collection, category)
         except ValidationError as error:

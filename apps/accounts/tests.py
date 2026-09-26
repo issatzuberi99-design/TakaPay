@@ -31,13 +31,13 @@ class AuthenticationTests(TestCase):
     def test_customer_registration_creates_customer(self):
         response = self.client.post(reverse("register"), self.customer_data())
         user = User.objects.get(username="asha")
-        self.assertRedirects(response, reverse("login"))
+        self.assertRedirects(response, reverse("dashboard"))
         self.assertEqual(user.role, User.Role.CUSTOMER)
 
     def test_collector_registration_creates_pending_profile(self):
         response = self.client.post(reverse("collector_register"), self.collector_data())
         user = User.objects.get(username="collector")
-        self.assertRedirects(response, reverse("login"))
+        self.assertRedirects(response, reverse("dashboard"))
         self.assertEqual(user.role, User.Role.COLLECTOR)
         self.assertEqual(user.collector_profile.verification_status, CollectorProfile.VerificationStatus.PENDING)
 

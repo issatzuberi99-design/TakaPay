@@ -102,6 +102,14 @@ def dashboard_context(request):
     approved_collectors = CollectorProfile.objects.filter(
         verification_status=CollectorProfile.VerificationStatus.APPROVED,
     ).count()
+    pending_collector_applications = list(
+        CollectorProfile.objects.filter(
+            verification_status=CollectorProfile.VerificationStatus.PENDING,
+        ).select_related("user").order_by("created_at")[:5]
+    )
+    pending_collector_application_count = CollectorProfile.objects.filter(
+        verification_status=CollectorProfile.VerificationStatus.PENDING,
+    ).count()
 
     token_transactions = since(WalletTransaction.objects.all(), "created_at").aggregate(
         issued=Coalesce(
@@ -317,6 +325,8 @@ def dashboard_context(request):
         "collected_waste_pieces": collection_weight_total["pieces"],
         "verified_waste_kg": verified_weight,
         "approved_collectors": approved_collectors,
+        "pending_collector_applications": pending_collector_applications,
+        "pending_collector_application_count": pending_collector_application_count,
         "collectors_with_completions": collection_weight_total["collectors"],
         "available_collections": collection_counts[CollectionRequest.Status.AVAILABLE],
         "completed_collections": collection_counts[CollectionRequest.Status.COMPLETED],

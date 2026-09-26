@@ -52,6 +52,19 @@ class AdminOperationsTests(TestCase):
         self.assertEqual(self.category.token_rate, Decimal("2.75"))
         self.assertTrue(response.context["formset"].forms[0].errors)
 
+    def test_admin_can_register_piece_material(self):
+        response = self.client.post(reverse("admin_token_rates"), {
+            "form_type": "category",
+            "category-name": "Aluminium cans",
+            "category-reward_unit": "piece",
+            "category-token_rate": "2.50",
+            "category-active": "on",
+        })
+        self.assertRedirects(response, reverse("admin_token_rates"))
+        category = WasteCategory.objects.get(name="Aluminium cans")
+        self.assertEqual(category.reward_unit, WasteCategory.RewardUnit.PIECE)
+        self.assertEqual(category.token_rate, Decimal("2.50"))
+
     def test_operational_pages_reject_anonymous_customers_and_collectors(self):
         urls = (
             reverse("admin_analytics_dashboard"), reverse("admin_token_rates"),

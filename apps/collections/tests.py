@@ -74,6 +74,9 @@ class CollectionRequestTests(TestCase):
         self.client.force_login(self.approved_collector)
         response = self.client.get(reverse("collections_dashboard"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Collector wallet")
+        self.assertContains(response, "0.00")
+        self.assertContains(response, reverse("collector_payout_create"))
 
     def test_available_unassigned_request_is_shown_and_hides_empty_state(self):
         self.assertIsNone(self.collection.collector)
@@ -384,3 +387,26 @@ class CollectionRequestTests(TestCase):
         self.assertEqual(self.report.status, WasteReport.Status.COLLECTED)
         self.assertTrue(self.collection.proof_photo)
         self.assertIsNotNone(self.collection.completed_at)
+
+    def test_assigned_collector_can_complete_with_thirty_kilograms(self):
+        self.collection.collector = self.approved_collector
+        self.collection.status = CollectionRequest.Status.ACCEPTED
+        self.collection.save()
+        self.client.force_login(self.approved_collector)
+        image = Image.new("RGB", (10, 10), color="green")
+        buffer = BytesIO()
+        image.save(buffer, format="JPEG")
+        photo = SimpleUploadedFile("marketplace-materials.jpg", buffer.getvalue(), content_type="image/jpeg")
+        response = self.client.post(
+            reverse("collection_complete", args=[self.collection.id]),
+            {
+                "actual_weight": "30",
+                "weight_unit": WasteReport.WeightUnit.KILOGRAMS,
+                "proof_photo": photo,
+                "notes": "collected",
+            },
+        )
+        self.collection.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.collection.status, CollectionRequest.Status.COMPLETED)
+        self.assertEqual(self.collection.actual_weight, Decimal("30.00"))

@@ -7,6 +7,17 @@
         <h1>Collection Dashboard</h1>
     </div>
 
+    <section class="wallet-panel" aria-labelledby="collector-wallet-heading">
+        <div>
+            <p class="wallet-panel__label" id="collector-wallet-heading">Collector wallet</p>
+            <p class="wallet-panel__amount">{{ wallet.balance|floatformat:2 }} <span>TZS</span></p>
+        </div>
+        <div class="wallet-panel__actions">
+            <a class="ds-button ds-button--on-dark" href="{% url 'collector_payout_create' %}">Request payout</a>
+        </div>
+        <p class="wallet-panel__note">Earnings from completed collections are added automatically.</p>
+    </section>
+
     <div class="report-list-block">
         <h2 id="available-collections">Available Collections</h2>
         {% if available_collections %}

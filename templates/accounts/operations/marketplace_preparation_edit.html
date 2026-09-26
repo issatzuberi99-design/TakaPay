@@ -1,11 +1,40 @@
 {% extends "base.html" %}
 {% block title %}Prepare Material | TakaPay Admin{% endblock %}
 {% block content %}
-<section class="form-page"><p class="eyebrow">TakaPay Admin · Marketplace Preparation</p><h1>Prepare {{ material.name }}</h1>
-    <p>Source collection #{{ material.source_collection_id }} · verified {% if material.source_collection.actual_piece_count %}quantity {{ material.source_collection.actual_piece_count }} pieces{% else %}weight {{ material.source_collection.actual_weight }} {{ material.source_collection.get_weight_unit_display }}{% endif %}. Publishing makes this listing public.</p>
-    <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}
-        <button class="button button-primary" type="submit">Save Draft / Publish</button>
-        <a class="button button-secondary" href="{% url 'marketplace_preparation' %}">Cancel</a>
-    </form>
+<section class="admin-dashboard preparation-page">
+    <header class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'marketplace_preparation' %}">Back to preparation queue</a>
+        <p class="eyebrow">TakaPay Admin &middot; Marketplace</p>
+        <h1>Prepare {{ material.name }}</h1>
+        <p class="dashboard-intro">Add a clear public listing, set its availability, and publish it when it is ready for buyers.</p>
+    </header>
+
+    <div class="preparation-grid">
+        <aside class="preparation-source" aria-labelledby="source-heading">
+            {% if material.image %}<img class="preparation-source__image" src="{{ material.image.url }}" alt="Current image for {{ material.name }}">{% endif %}
+            <h2 id="source-heading">Verified collection</h2>
+            <p class="preparation-source__quantity">{% if material.source_collection.actual_piece_count %}{{ material.source_collection.actual_piece_count|floatformat:0 }} pieces{% else %}{{ material.source_collection.actual_weight|floatformat:2 }} {{ material.source_collection.get_weight_unit_display|lower }}{% endif %}</p>
+            <dl class="preparation-source__meta">
+                <div><dt>Collection</dt><dd>#{{ material.source_collection_id }}</dd></div>
+                <div><dt>Category</dt><dd>{{ material.category.name|default:"Uncategorized" }}</dd></div>
+                <div><dt>Listing status</dt><dd><span class="ds-badge ds-badge--{% if material.preparation_status == 'published' %}success{% elif material.preparation_status == 'draft' %}neutral{% else %}warning{% endif %}">{{ material.get_preparation_status_display }}</span></dd></div>
+            </dl>
+            <p class="preparation-form__intro">The collected quantity is verified. Update the public listing details here; changing its listing quantity does not change the original collection record.</p>
+        </aside>
+
+        <div class="preparation-form-card">
+            <h2>Listing details</h2>
+            <p class="preparation-form-card__intro">A clear name, description, photo, and accurate availability help buyers decide what to request.</p>
+            <form method="post" enctype="multipart/form-data" class="preparation-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <p class="preparation-form__publish-note">Choose <strong>Published</strong> to show this material in the public marketplace. Draft listings remain private.</p>
+                <div class="ds-actions preparation-form__actions">
+                    <button class="ds-button ds-button--primary" type="submit">Save listing</button>
+                    <a class="ds-button ds-button--quiet" href="{% url 'marketplace_preparation' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
 {% endblock %}

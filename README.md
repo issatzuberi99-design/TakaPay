@@ -172,6 +172,17 @@ If port `8000` is already in use, stop the existing Django process or choose ano
 python manage.py runserver 127.0.0.1:8001
 ```
 
+### Reset local data for a fresh manual flow
+
+Anonymization is intended to preserve business history. For a completely fresh local test, clear the development database instead:
+
+```bash
+python manage.py flush --no-input
+python manage.py createsuperuser
+```
+
+`flush` deletes application data, including users, wallets, reports, collections, rates, rewards, and transactions, but keeps the database schema and migrations. Only run it against the local development database. Uploaded files in `media/` are not removed; delete them separately when a clean media directory is needed.
+
 ## Economic engine
 
 The `apps.economics` app keeps customer Tokens separate from collector TZS earnings.
@@ -293,7 +304,9 @@ The current landing page establishes the TakaPay visual language for the applica
 - Deep teal/near-black brand structure and text
 - Green/teal value and success actions
 - White surfaces
-- Restrained coral attention accent
+- Primary teal `#0F766E` with brighter mint `#2E9E8F` for brand highlights
+- Surface/background `#F7F8F3` and near-black text `#0B1F1D`
+- Coral accent `#FF6B5B`, with a darker text-safe coral for small labels and links
 - Shared typography, spacing, radius, shadows and focus treatment
 
 The shared CSS architecture is:
@@ -360,9 +373,11 @@ git diff --check
 ## Security and deployment notes
 
 - Never commit `.env`, passwords, API keys, or production secrets.
-- `DEBUG=True` is intended only for local development.
+- `DEBUG` defaults to `False`; set it to `True` only for local development.
+- With `DEBUG=False`, session/CSRF cookies are secure and HSTS defaults to one year. Set `SECURE_SSL_REDIRECT=True` in production after HTTPS is configured.
+- If TLS terminates at a trusted reverse proxy, set `TRUST_X_FORWARDED_PROTO=True` only when that proxy overwrites `X-Forwarded-Proto`.
 - Configure `ALLOWED_HOSTS` for every deployed hostname.
 - Use a production WSGI/ASGI server instead of `runserver` in production.
 - Configure PostgreSQL credentials through environment variables.
 - Review uploaded media storage and static-file serving before deployment.
-- The service worker is intentionally small and should be reviewed when adding offline functionality.
+- The service worker caches public static assets and a generic offline page only; it never stores rendered account pages.

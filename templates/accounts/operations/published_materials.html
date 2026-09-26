@@ -1,3 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Published Materials | TakaPay{% endblock %}
-{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Marketplace</p><h1>Published Materials</h1><div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Material</th><th>Category</th><th>Quantity</th><th>Price</th><th>Published</th></tr></thead><tbody>{% for material in materials %}<tr><th>{{ material.name }}</th><td>{{ material.category|default:"—" }}</td><td>{{ material.available_quantity }} {{ material.get_unit_display }}</td><td>{{ material.price_per_unit|default:"—" }}</td><td>{{ material.published_at|date:"M j, Y"|default:"—" }}</td></tr>{% empty %}<tr><td colspan="5">No published materials.</td></tr>{% endfor %}</tbody></table></div><p><a href="{% url 'marketplace' %}">View public marketplace</a></p></section>{% endblock %}
+{% block content %}<section class="admin-dashboard">
+    <div class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+        <p class="eyebrow">TakaPay Admin &middot; Marketplace</p>
+        <h1>Published Materials</h1>
+    </div>
+    <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Material</th><th>Category</th><th>Quantity</th><th>Price</th><th>Published</th></tr></thead><tbody>
+    {% for material in materials %}<tr>
+        <th>{{ material.name }}</th>
+        <td>{{ material.category|default:"&mdash;" }}</td>
+        <td>{{ material.available_quantity }} {{ material.get_unit_display }}</td>
+        <td>{{ material.price_per_unit|default:"&mdash;" }}</td>
+        <td>{% if material.published_at %}<span class="ds-badge ds-badge--success">{{ material.published_at|date:"M j, Y" }}</span>{% else %}&mdash;{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="5">No published materials.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p><a class="ds-button ds-button--secondary" href="{% url 'marketplace' %}">View public marketplace</a></p>
+</section>{% endblock %}

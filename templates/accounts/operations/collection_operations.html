@@ -1,9 +1,36 @@
 {% extends "base.html" %}
 {% block title %}{% if history %}Collection History{% else %}Collection Requests{% endif %} | TakaPay{% endblock %}
-{% block content %}<section class="admin-dashboard"><p class="eyebrow">TakaPay Admin · Operations</p><h1>{% if history %}Collection History{% else %}Collection Requests{% endif %}</h1>
-    <p class="dashboard-intro">{% if history %}Completed collections with the reward snapshot used when tokens were credited.{% else %}Review collection status, verified quantities, rewards, proof, and preparation progress.{% endif %}</p>
-    <form method="get" class="dashboard-filter">{% if not history %}<label for="status">Status</label><select id="status" name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% endif %}<label for="from">From</label><input id="from" type="date" name="from" value="{{ date_from }}"><label for="to">To</label><input id="to" type="date" name="to" value="{{ date_to }}"><button class="button button-primary">Filter</button></form>
+{% block content %}<section class="admin-dashboard">
+    <div class="admin-page-header">
+        <a class="admin-back-link" href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+        <p class="eyebrow">TakaPay Admin &middot; Operations</p>
+        <h1>{% if history %}Collection History{% else %}Collection Requests{% endif %}</h1>
+        <p class="dashboard-intro">{% if history %}Completed collections with the reward snapshot used when tokens were credited.{% else %}Review collection status, verified quantities, rewards, proof, and preparation progress.{% endif %}</p>
+    </div>
+
+    <form method="get" class="dashboard-filter">
+        {% if not history %}<label for="status">Status</label><select id="status" name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{% endif %}
+        <label for="from">From</label><input id="from" type="date" name="from" value="{{ date_from }}">
+        <label for="to">To</label><input id="to" type="date" name="to" value="{{ date_to }}">
+        <button class="button button-primary">Filter</button>
+    </form>
+
     <div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr><th>Reference / Customer</th><th>Material</th><th>Collector</th><th>Verified quantity</th><th>Reward</th><th>Completed</th><th>Proof</th><th>Preparation</th></tr></thead><tbody>
-    {% for row in rows %}{% with c=row.collection reward=row.reward prep=row.preparation %}<tr><th>Collection #{{ c.pk }}<br>{{ c.waste_report.customer.get_full_name|default:c.waste_report.customer.username }}<br>{{ c.waste_report.description|truncatewords:10 }}</th><td>{{ c.waste_report.category.name }}<br><small>{{ c.get_status_display }}</small></td><td>{% if c.collector %}{{ c.collector.get_full_name|default:c.collector.username }}{% else %}Unassigned{% endif %}</td><td>{% if c.actual_piece_count %}{{ c.actual_piece_count|floatformat:0 }} pieces{% elif c.actual_weight %}{{ c.actual_weight }} {{ c.get_weight_unit_display }}{% else %}—{% endif %}</td><td>{% if reward %}{{ reward.collection_reward_material }}<br>{{ reward.collection_reward_quantity }} {{ reward.get_collection_reward_unit_display }} × {{ reward.collection_reward_rate }} = <strong>{{ reward.amount }} tokens</strong>{% else %}—{% endif %}</td><td>{% if c.completed_at %}{{ c.completed_at|date:"M j, Y H:i" }}{% else %}—{% endif %}</td><td>{% if c.proof_photo %}<a href="{{ c.proof_photo.url }}" target="_blank" rel="noopener">View proof</a>{% else %}—{% endif %}</td><td>{% if prep %}{{ prep.get_preparation_status_display }}{% else %}Not queued{% endif %}</td></tr>{% endwith %}{% empty %}<tr><td colspan="8">No matching collection requests.</td></tr>{% endfor %}
-    </tbody></table></div><p><a href="{% url 'admin_collection_requests' %}">Collection requests</a> · <a href="{% url 'admin_collection_history' %}">Collection history</a> · <a href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a></p>
+    {% for row in rows %}{% with c=row.collection reward=row.reward prep=row.preparation %}<tr>
+        <th>Collection #{{ c.pk }}<br>{{ c.waste_report.customer.get_full_name|default:c.waste_report.customer.username }}<br>{{ c.waste_report.description|truncatewords:10 }}</th>
+        <td>{{ c.waste_report.category.name }}<br><span class="ds-badge ds-badge--{% if c.status == 'completed' %}success{% elif c.status == 'accepted' %}info{% elif c.status == 'available' %}neutral{% else %}danger{% endif %}">{{ c.get_status_display }}</span></td>
+        <td>{% if c.collector %}{{ c.collector.get_full_name|default:c.collector.username }}{% else %}Unassigned{% endif %}</td>
+        <td>{% if c.actual_piece_count %}{{ c.actual_piece_count|floatformat:0 }} pieces{% elif c.actual_weight %}{{ c.actual_weight }} {{ c.get_weight_unit_display }}{% else %}&mdash;{% endif %}</td>
+        <td>{% if reward %}{{ reward.collection_reward_material }}<br>{{ reward.collection_reward_quantity }} {{ reward.get_collection_reward_unit_display }} &times; {{ reward.collection_reward_rate }} = <strong>{{ reward.amount }} tokens</strong>{% else %}&mdash;{% endif %}</td>
+        <td>{% if c.completed_at %}{{ c.completed_at|date:"M j, Y H:i" }}{% else %}&mdash;{% endif %}</td>
+        <td>{% if c.proof_photo %}<a href="{{ c.proof_photo.url }}" target="_blank" rel="noopener">View proof</a>{% else %}&mdash;{% endif %}</td>
+        <td>{% if prep %}<span class="ds-badge ds-badge--neutral">{{ prep.get_preparation_status_display }}</span>{% else %}<span class="ds-badge ds-badge--neutral">Not queued</span>{% endif %}</td>
+    </tr>{% endwith %}{% empty %}<tr><td colspan="8">No matching collection requests.</td></tr>{% endfor %}
+    </tbody></table></div>
+
+    <nav class="pill-nav" aria-label="Collection views">
+        <a href="{% url 'admin_collection_requests' %}">Collection requests</a>
+        <a href="{% url 'admin_collection_history' %}">Collection history</a>
+        <a href="{% url 'admin_analytics_dashboard' %}">Back to dashboard</a>
+    </nav>
 </section>{% endblock %}
