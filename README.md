@@ -164,7 +164,7 @@ The custom dashboard is available at `/admin/dashboard/`. The technical Django a
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/>.
+Open <http://127.0.0.1:8000/>. If your local `.env` keeps `DEBUG=False`, start with `python manage.py runserver --insecure` so Django also serves static assets during development. This option is development-only; use `DEBUG=True` for a standard local runserver, and use a proper static server in production.
 
 If port `8000` is already in use, stop the existing Django process or choose another port:
 
@@ -323,7 +323,7 @@ static/css/layouts.css
 page-specific styles
 ```
 
-Change global theme values in `tokens.css` first. Use `base.css` for element defaults, `components.css` for reusable UI primitives, `layouts.css` for shared containers/layouts, and page styles only for genuinely page-specific behavior.
+Change global theme values in `tokens.css` first. Use `base.css` for element defaults, `components.css` for reusable UI primitives, `layouts.css` for shared containers/layouts, and page styles only for genuinely page-specific behavior. The global theme switcher honors the device preference by default and stores a manual light/dark choice locally. Glass effects follow reduced-transparency preferences.
 
 The service worker uses versioned caches and network-first handling for HTML, CSS, and JavaScript so local theme changes are not hidden indefinitely by stale assets. A hard refresh may still be useful during development:
 

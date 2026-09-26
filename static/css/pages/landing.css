@@ -191,3 +191,28 @@
 .landing-page .landing-tag--coral { color: var(--color-accent-ink); }
 @media (max-width: 54rem) { .landing-hero__grid { grid-template-columns: 1fr; gap: var(--space-6); } .landing-hero__copy { padding-block: 0; } .landing-hero__media { height: auto; aspect-ratio: 16 / 10; } }
 @media (max-width: 40rem) { .landing-page .ds-section { padding-block: 3rem; } .landing-hero { padding-block: 2rem; } .landing-hero h1 { max-width: 11ch; font-size: clamp(2.8rem, 13vw, 4.5rem); } .landing-hero__media { aspect-ratio: 4 / 3; } }
+
+
+:root[data-theme="dark"] .landing-dark,
+:root[data-theme="dark"] .landing-token-card { background: linear-gradient(145deg, #0c403b, #102d29); }
+:root[data-theme="dark"] .landing-final { background: linear-gradient(135deg, #0c403b, #102d29); }
+:root[data-theme="dark"] .landing-page .landing-dark .landing-actions .ds-button--primary,
+:root[data-theme="dark"] .landing-page .landing-final .landing-actions .ds-button--primary { color: #eaf3f1; background: #173a35; border-color: rgba(234,243,241,.24); }
+:root[data-theme="dark"] .landing-page .landing-final .landing-actions .ds-button--secondary { border-color: rgba(234,243,241,.7); color: #eaf3f1; }
+
+
+.landing-header { padding: .55rem .85rem; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); }
+.landing-header > .theme-toggle { flex: 0 0 auto; margin-inline-start: auto; margin-inline-end: clamp(.75rem, 2vw, 1.5rem); }
+@media (prefers-reduced-transparency: reduce) { .landing-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--color-surface); } }
+
+
+/* Keep hero text inside its column and keep dark-mode colors coherent. */
+.landing-hero__grid { grid-template-columns: minmax(0, .92fr) minmax(20rem, 1.08fr); }
+.landing-hero__copy { min-width: 0; }
+.landing-hero h1 { max-width: 11ch; font-size: clamp(3rem, 6.2vw, 5.25rem); overflow-wrap: normal; }
+:root[data-theme="dark"] .landing-hero { color: #eaf3f1; background: linear-gradient(140deg, #0c403b, #071917); }
+:root[data-theme="dark"] .landing-hero h1 { color: #f4fbf9; }
+:root[data-theme="dark"] .landing-hero .landing-lead { color: rgba(234,243,241,.78); }
+:root[data-theme="dark"] .landing-hero .ds-button--secondary { color: #eaf3f1; border-color: rgba(234,243,241,.7); background: rgba(18,46,42,.45); }
+@media (max-width: 54rem) { .landing-hero__grid { grid-template-columns: minmax(0, 1fr); } .landing-hero h1 { max-width: 11ch; font-size: clamp(3rem, 9vw, 5.25rem); } }
+@media (max-width: 40rem) { .landing-hero h1 { font-size: clamp(2.7rem, 12vw, 4.5rem); } }

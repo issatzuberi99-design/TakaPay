@@ -301,3 +301,78 @@ input[type="radio"] { accent-color: var(--color-primary); }
 .catalog-page .material-card { transition: transform 160ms ease, box-shadow 160ms ease; }
 .catalog-page .material-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 @media (max-width: 40rem) { .wallet-page__actions { width: 100%; } .wallet-page__actions .ds-button { flex: 1 1 8rem; } .wallet-history__row { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
+
+
+/* ---------- Batch 1 glass theme: shared visual layer for every Django workflow ---------- */
+html { min-height: 100%; background: var(--color-background); color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+body { position: relative; min-height: 100vh; isolation: isolate; background-color: var(--color-background); background-image: radial-gradient(ellipse 44rem 38rem at -9% -12%, var(--ambient-primary), transparent 72%), radial-gradient(ellipse 36rem 34rem at 108% 7%, var(--ambient-accent), transparent 72%), radial-gradient(ellipse 42rem 34rem at 36% 112%, var(--ambient-lower), transparent 72%); background-attachment: fixed; transition: background-color .3s ease, color .3s ease; }
+main, .site-footer { position: relative; z-index: 1; }
+.site-header { position: relative; z-index: 20; width: min(calc(100% - 2rem), var(--content-width)); max-width: var(--content-width); margin: 1rem auto 1.25rem; padding: .8rem 1rem; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); }
+.site-header > nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .3rem .4rem; font-size: var(--font-size-sm); }
+.site-header .site-nav__link { min-height: 2.5rem; padding: .55rem .72rem; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: var(--font-weight-semibold); white-space: nowrap; transition: color .16s ease, background .16s ease; }
+.site-header .site-nav__link:hover, .site-header .site-nav__link[aria-current="page"] { color: var(--color-primary); background: var(--color-primary-soft); }
+.site-header .nav-button { min-height: 2.5rem; padding: .55rem .95rem; border-radius: var(--radius-pill); }
+.site-header .ds-wordmark { padding-inline: .35rem; }
+.theme-toggle { display: inline-grid; flex: 0 0 auto; width: 2.55rem; height: 2.55rem; place-items: center; border: 1px solid var(--glass-border); border-radius: 50%; color: var(--color-text); background: var(--glass-surface-hi); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: transform .18s ease, background .18s ease; }
+.theme-toggle:hover { transform: translateY(-1px); background: var(--color-primary-soft); }
+.theme-toggle svg { width: 1.1rem; height: 1.1rem; }
+.theme-toggle[hidden] { display: none !important; }
+.ds-button, .button, .nav-button { border-radius: var(--radius-pill); }
+.ds-button--primary, .button-primary { color: #fff; background: linear-gradient(135deg, var(--color-primary), var(--color-brand-green-light)); border-color: transparent; box-shadow: 0 8px 22px rgba(15, 118, 110, .20); }
+.ds-button--primary:hover:not(:disabled), .button-primary:hover { color: #fff; background: linear-gradient(135deg, var(--color-primary-hover), var(--color-brand-green-light)); }
+.ds-button--secondary, .button-secondary { border-color: var(--glass-border); border-radius: var(--radius-pill); background: var(--glass-surface-hi); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.ds-card, .auth-card, .preparation-form-card, .wallet-history, .dashboard-kpi, .dashboard-panel, .dashboard-status-card, .dashboard-filter, .admin-linkcard, .admin-details, .stat, .action-tile, .report-item, .reward-card, .material-card, .ds-empty-state, .activity-list, .admin-quicknav { border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); }
+.ds-card--muted, .dashboard-filter, .dashboard-status-card, .admin-quicknav__links { background-color: var(--glass-surface-hi); }
+.dashboard-kpi { border-top: 3px solid var(--color-primary); }
+.dashboard-kpi-highlight, .dashboard-kpi--headline.dashboard-kpi-highlight { border-top-color: var(--color-accent); }
+.dashboard-status-card { border-left: 3px solid var(--color-primary); }
+.dashboard-status-card-highlight { border-left-color: var(--color-accent); }
+.dashboard-table, .ds-table { background: transparent; }
+.dashboard-table tbody tr:hover, .ds-table tbody tr:hover { background: var(--glass-surface-hi); }
+.ds-form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .ds-form-field select, .ds-form-field textarea, .ds-control, .account-form input:not([type="checkbox"]), .account-form select, .account-form textarea, .preparation-form input:not([type="checkbox"]), .preparation-form select, .preparation-form textarea, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="url"], select, textarea { border-color: var(--glass-border); border-radius: var(--radius-sm); color: var(--color-text); background-color: var(--glass-surface-hi); }
+input::placeholder, textarea::placeholder { color: var(--color-text-muted); opacity: .8; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--color-primary); }
+.site-footer { border-top-color: var(--glass-border); }
+.flow-section, .wallet-panel { color: #fff; background: linear-gradient(135deg, var(--color-primary-deep), #102d29); box-shadow: var(--glass-shadow); }
+.wallet-panel__label, .wallet-panel__amount span, .wallet-panel__note { color: rgba(255, 255, 255, .78); }
+.message, .ds-message { border-color: var(--glass-border); border-radius: var(--radius-md); background: var(--glass-surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.ds-message--success, .ds-message--info, .ds-message--warning, .ds-message--error, .message-success, .message-info, .message-warning, .message-error { background-color: color-mix(in srgb, currentColor 9%, transparent); }
+.ds-badge { border: 1px solid var(--glass-border); border-radius: var(--radius-pill); }
+.site-header nav form { margin: 0; }
+@media (max-width: 54rem) { .site-header { align-items: flex-start; gap: .5rem; } .site-header > nav { width: 100%; justify-content: flex-start; } }
+@media (max-width: 38rem) { .site-header { padding: .65rem; } .site-header > nav { gap: .2rem; } .site-header .site-nav__link { padding-inline: .55rem; font-size: .8rem; } .app-page, .admin-dashboard { padding-top: var(--space-6); } }
+@media (prefers-reduced-transparency: reduce) { .site-header, .ds-card, .auth-card, .preparation-form-card, .wallet-history, .dashboard-kpi, .dashboard-panel, .dashboard-status-card, .dashboard-filter, .admin-linkcard, .admin-details, .stat, .action-tile, .report-item, .reward-card, .material-card, .ds-empty-state, .activity-list, .admin-quicknav { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--color-surface); } }
+
+
+/* Complete the shared glass treatment for legacy forms, tables and dark surfaces. */
+.form-page { padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); }
+.account-form { padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); }
+.form-step-card { border-color: var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.dashboard-table-wrap, .ds-table-wrap, .table-wrap { border: 1px solid var(--glass-border); border-radius: var(--radius-lg); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.dashboard-table-wrap .dashboard-table, .ds-table-wrap .ds-table, .table-wrap table { margin-top: 0; }
+.balance-panel { color: #fff; background: linear-gradient(135deg, var(--color-primary-deep), #102d29); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--glass-shadow); }
+.auth-aside { background: linear-gradient(150deg, var(--color-primary-deep), #102d29); }
+@media (prefers-reduced-transparency: reduce) { .form-page, .account-form, .form-step-card, .dashboard-table-wrap, .ds-table-wrap, .table-wrap { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--color-surface); } }
+
+:root[data-theme="dark"] .ds-button--primary,
+:root[data-theme="dark"] .button-primary { color: #071917; }
+:root[data-theme="dark"] .ds-button--primary:hover:not(:disabled),
+:root[data-theme="dark"] .button-primary:hover { color: #071917; }
+
+
+/* Screenshot-led contrast and glass visibility corrections. */
+.auth-main { position: relative; isolation: isolate; background-image: radial-gradient(ellipse 28rem 24rem at 16% 18%, var(--ambient-primary), transparent 74%), radial-gradient(ellipse 24rem 20rem at 88% 84%, var(--ambient-accent), transparent 76%); }
+.auth-card { position: relative; z-index: 1; border-color: var(--glass-border); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%); }
+.auth-aside, .auth-aside h2 { color: #fff; }
+.auth-aside p, .auth-aside .auth-points { color: rgba(255, 255, 255, .86); }
+.messages .message-success, .messages .message-info, .messages .message-warning, .messages .message-error { border: 1px solid var(--glass-border); border-left-width: 4px; border-radius: var(--radius-md); background: var(--glass-surface); box-shadow: var(--glass-shadow); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); }
+.messages .message-success { border-left-color: var(--color-success); color: var(--color-success); }
+.messages .message-info { border-left-color: var(--color-info); color: var(--color-info); }
+.messages .message-warning { border-left-color: var(--color-warning); color: var(--color-warning); }
+.messages .message-error { border-left-color: var(--color-danger); color: var(--color-danger); }
+:root[data-theme="dark"] .auth-aside,
+:root[data-theme="dark"] .auth-aside h2 { color: #f4fbf9; }
+:root[data-theme="dark"] .auth-aside p,
+:root[data-theme="dark"] .auth-aside .auth-points { color: rgba(244, 251, 249, .86); }
+@media (prefers-reduced-transparency: reduce) { .auth-main { background-image: none; } .auth-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--color-surface); } .messages .message-success, .messages .message-info, .messages .message-warning, .messages .message-error { backdrop-filter: none; -webkit-backdrop-filter: none; } }

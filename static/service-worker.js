@@ -1,4 +1,4 @@
-const CACHE_NAME = "takapay-public-shell-v6";
+const CACHE_NAME = "takapay-public-shell-v7";
 const OFFLINE_PAGE = "/static/offline.html";
 
 self.addEventListener("install", (event) => {

@@ -1,6 +1,10 @@
 {% load static %}
 <header class="landing-header">
     <a class="ds-wordmark landing-wordmark" href="/" aria-label="TakaPay home"><span>Taka</span><em>Pay</em></a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" aria-pressed="false" hidden>
+            <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+            <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M20.8 13A8.7 8.7 0 0 1 11 3.2 8.8 8.8 0 1 0 20.8 13Z"/></svg>
+        </button>
     <button class="landing-menu-toggle" type="button" aria-expanded="false" aria-controls="landing-menu" aria-label="Open navigation menu">
         <img class="landing-menu-icon landing-menu-icon--open" src="{% static 'images/icons/menu.svg' %}" alt="" width="24" height="24">
         <img class="landing-menu-icon landing-menu-icon--close" src="{% static 'images/icons/close.svg' %}" alt="" width="24" height="24">
@@ -10,5 +14,6 @@
         <a href="#how-it-works">How it works</a>
         <a class="landing-nav-signin" href="{% url 'login' %}">Sign in</a>
         <a class="ds-button ds-button--primary landing-nav-cta" href="{% url 'register' %}">Get started</a>
+
     </nav>
 </header>

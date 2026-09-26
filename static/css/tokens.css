@@ -109,3 +109,69 @@
     --white: var(--color-surface);
     --focus-ring: var(--color-info);
 }
+
+
+/* Glass theme tokens adapted from the Batch 1 visual reference. */
+:root {
+    color-scheme: light;
+    --color-primary-deep: #0e514c;
+    --glass-surface: rgba(255, 255, 255, .62);
+    --glass-surface-hi: rgba(255, 255, 255, .82);
+    --glass-border: rgba(15, 118, 110, .18);
+    --glass-shadow: 0 12px 36px rgba(15, 118, 110, .12);
+    --ambient-primary: rgba(46, 158, 143, .23);
+    --ambient-accent: rgba(255, 107, 91, .15);
+    --ambient-lower: rgba(15, 118, 110, .12);
+    --radius-sm: .625rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.375rem;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-primary: #3fb6a6;
+    --color-primary-hover: #68cdbe;
+    --color-primary-soft: rgba(63, 182, 166, .16);
+    --color-primary-deep: #0c403b;
+    --color-accent: #ff8a72;
+    --color-accent-ink: #ffab98;
+    --color-accent-hover: #ff9b85;
+    --color-accent-soft: rgba(255, 138, 114, .15);
+    --color-background: #071917;
+    --color-surface: #122e2a;
+    --color-surface-muted: #173a35;
+    --color-text: #eaf3f1;
+    --color-text-muted: #a6bbb6;
+    --color-border: rgba(234, 243, 241, .14);
+    --color-success: #7fe0cf;
+    --color-success-soft: rgba(63, 182, 166, .17);
+    --color-warning: #f0cf8e;
+    --color-warning-soft: rgba(230, 180, 80, .18);
+    --color-danger: #ffb09d;
+    --color-danger-hover: #ff9b85;
+    --color-danger-soft: rgba(255, 138, 114, .17);
+    --color-info: #9dd9f0;
+    --color-info-soft: rgba(64, 145, 184, .17);
+    --color-on-primary-muted: #c5ded9;
+    --color-on-primary-accent: #ffc3b5;
+    --color-brand-ink: #eaf3f1;
+    --color-brand-green: #68cdbe;
+    --color-brand-green-light: #7fe0cf;
+    --brand-ink: var(--color-brand-ink);
+    --brand-green: var(--color-brand-green);
+    --brand-green-light: var(--color-brand-green-light);
+    --glass-surface: rgba(18, 46, 42, .64);
+    --glass-surface-hi: rgba(24, 56, 51, .82);
+    --glass-border: rgba(234, 243, 241, .12);
+    --glass-shadow: 0 14px 40px rgba(0, 0, 0, .30);
+    --ambient-primary: rgba(63, 182, 166, .14);
+    --ambient-accent: rgba(255, 138, 114, .08);
+    --ambient-lower: rgba(15, 118, 110, .16);
+    --teal: var(--color-primary);
+    --coral: var(--color-accent-ink);
+    --muted: var(--color-text-muted);
+    --line: var(--color-border);
+    --cream: var(--color-background);
+    --white: var(--color-surface);
+    --focus-ring: #68cdbe;
+}
